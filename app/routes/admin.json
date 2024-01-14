@@ -1,0 +1,14 @@
+{
+	"enabled": true,
+	"routes": {
+		"/": {
+			"method": "GET"
+		},
+		"/{id}": {
+			"method": "GET"
+		},
+		"/create": {
+			"method": "POST"
+		}
+	}
+}

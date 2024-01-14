@@ -1,0 +1,17 @@
+{
+	"enabled": true,
+	"routes": {
+		"/": {
+			"method": "GET",
+			"data": "data.fetch_groups",
+			"processor": "data.processor1",
+			"format": "json"
+		},
+		"/:groupid": {
+			"method": "GET",
+			"data": "data.fetch_data_groupid",
+			"processor": "data.processor1",
+			"format": "json"
+		}
+	}
+}

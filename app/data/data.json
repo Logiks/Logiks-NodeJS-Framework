@@ -1,0 +1,34 @@
+{
+	"fetch_groups": {
+		"type": "sql",
+		"table": "do_lists",
+		"columns": "groupid,count(*) as count",
+		"where": {
+			"blocked": "false"
+		},
+		"order_by": "groupid desc",
+		"group_by": "groupid"
+	},
+	"fetch_data_groupid": {
+		"type": "sql",
+		"table": "do_lists",
+		"columns": "title,value,class",
+		"where": {
+			"blocked": "false",
+			"groupid": "#groupid#"
+		},
+		"order_by": "sortorder DESC,title ASC"
+	},
+	"create_data": {
+		"type": "sql",
+		"table": "do_lists",
+		"columns": "*",
+		"validations": {
+			
+		},
+		"where": {
+			"blocked": "false"
+		},
+		"order_by": "id desc"
+	}
+}
