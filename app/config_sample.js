@@ -9,7 +9,7 @@ module.exports = {
 	env: process.env.NODE_ENV || 'development',
 	port: process.env.PORT || 8888,
 	host: process.env.HOST || "0.0.0.0",
-	welcome: "Welcome to SmartinfoLogiks API Server 2",
+	welcome: "Welcome to Logiks NodeJS Framework",
 
 	debug: true,
 	remoteDebug: true,
@@ -20,6 +20,7 @@ module.exports = {
 	intercept_axios_response: false,
 	allow_home_info: false,
 	default_lang: "en-gb",
+	html_server_path: "/",
 
 	noauth: [
 		"/auth",
