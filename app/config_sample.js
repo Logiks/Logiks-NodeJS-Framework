@@ -20,7 +20,11 @@ module.exports = {
 	intercept_axios_response: false,
 	allow_home_info: false,
 	default_lang: "en-gb",
-	html_server_path: "/",
+
+	html_server_path: "assets",
+	html_public_folder: "public",
+	html_server_allow_root: true,
+	enable_public_folder: true,
 
 	noauth: [
 		"/auth",
