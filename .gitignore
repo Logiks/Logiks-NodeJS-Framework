@@ -68,3 +68,4 @@ tmp/
 public/
 
 api/config.js
+app/config.js
