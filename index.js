@@ -65,13 +65,26 @@ fs.readdirSync('./api/helpers/').forEach(function(file) {
         var filePath = path.resolve('./api/helpers/' + file);
         global[className] = require(filePath)(server, restify);
 
-        console.log(">>>Loading", className, typeof global[className]);
+        console.log(">>>Loading:Helper", className, typeof global[className]);
         if(global[className].initialize!=null) {
             global[className].initialize();
         }
         
     }
     //   console.log("Loading helpers : " + filePath);
+});
+
+fs.readdirSync('./api/controllers/').forEach(function(file) {
+    if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+        var className = file.toLowerCase().replace(".js", "").toUpperCase();
+        var filePath = path.resolve('./api/controllers/' + file);
+        global[className] = require(filePath)(server, restify);
+
+        console.log(">>>Loading:Controller", className, typeof global[className]);
+        if(global[className].initialize!=null) {
+            global[className].initialize();
+        }
+    }
 });
 
 //Process Cleanup
