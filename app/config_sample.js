@@ -26,6 +26,20 @@ module.exports = {
 	html_server_allow_root: true,
 	enable_public_folder: true,
 
+	allow_core_routes: false,
+
+	is_microservice: false,
+	microservice_client: {
+		"host_url": "",
+		"host_key": "",
+		"autoconnect": true
+	},
+
+	microservice_server: {
+		"host_key": "",
+		"autodiscover": false
+	},
+
 	noauth: [
 		"/auth",
 		"/auth/register",
