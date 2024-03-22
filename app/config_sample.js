@@ -71,6 +71,8 @@ module.exports = {
 		user: 'test',
 		password: 'test',
 		database: 'testdb',
+		connectionLimit:4,
+		debug:false,
 		insecureAuth : true
   	},
 	cache : {

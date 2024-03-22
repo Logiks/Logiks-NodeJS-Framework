@@ -1,6 +1,6 @@
 //MySQL Database Helper Functions
 
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 var _MYSQL = {};
 
@@ -13,14 +13,29 @@ module.exports = function(server, restify) {
 				_.each(CONFIG.dbmysql, function(conf, k) {
 					if(conf.keyid==null) conf.keyid = "MYSQL"+k;
 					
-					_MYSQL[conf.keyid] = mysql.createConnection(CONFIG.dbmysql);
-		        	_MYSQL[conf.keyid].connect();
+					// _MYSQL[conf.keyid] = mysql.createConnection(CONFIG.dbmysql);
+		        	// _MYSQL[conf.keyid].connect();
+
+					_MYSQL[conf.keyid] = mysql.createPool(conf);
+					//.filter(a=>["host","port","user","password","database","insecureAuth","connectionLimit","debug"].indexOf(a)>=0)
+
 		        	console.log("MYSQL Initialized - "+conf.keyid);
 				})
 			} else {
-				_MYSQL["MYSQL0"] = mysql.createConnection(CONFIG.dbmysql);
-		        _MYSQL["MYSQL0"].connect();
-		        console.log("MYSQL Initialized - MYSQL0");
+				// _MYSQL["MYSQL0"] = mysql.createConnection(CONFIG.dbmysql);
+		        // _MYSQL["MYSQL0"].connect();
+
+				_MYSQL["MYSQL0"] = mysql.createPool(CONFIG.dbmysql);
+				//.filter(a=>["host","port","user","password","database","insecureAuth","connectionLimit","debug"].indexOf(a)>=0)
+
+				_MYSQL["MYSQL0"].getConnection(function(err,connection){
+					if (err || connection==null) {
+					  throw err;
+					  return;
+					}   
+					
+					console.log("MYSQL Initialized - MYSQL0");
+				});
 			}
 	    }
 	}
