@@ -7,7 +7,7 @@ module.exports = function(server, restify) {
      //CORS Handler
     server.use(function(req, res, next) {
         //CONFIG.cors.domains
-        res.header('Access-Control-Allow-Origin', req.headers.host);
+        res.header('Access-Control-Allow-Origin', req.headers.host);//origin
 
         if(req.method.toUpperCase()=="OPTIONS") {
             var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 
@@ -27,29 +27,25 @@ module.exports = function(server, restify) {
         return next();
     }); 
 
-    //Misc Data Added to req
-    server.use(function(req, res, next) {
-        console.log(req.headers.host, req.connection);
-
-        //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-        return next();
-    });
-
     // server.use(function slowHandler(req, res, next) {
     //         setTimeout(function() {
     //             return next();
     //         }, 500);
     //     });
 
+
     server.use(function(req, res, next) {
         if(req.userAgent()=="ELB-HealthChecker/2.0") {
             return next();
         }
-
+        
         if(CONFIG.log_requests) {
             _LOGGER.log({
                 "PATH":req.path(),
+                "METHOD": req.method, 
+                "BODY": req.body, 
+                "QUERY": req.query, 
+                "PARAMS": req.params,
                 "USER_AGENT": req.userAgent(),
                 "HOST": req.header("host"),
                 "CLIENT_IP": req.header("x-forwarded-for")
