@@ -13,9 +13,9 @@ const APPINDEX = {
 
 module.exports = function(server, restify) {
 
-	initialize = function() {
-        
-	}
+    initialize = function() {
+        // CONFIG.strict_routes=true;
+    }
 
     initializeApplication = function() {
         var that = this;
@@ -114,23 +114,316 @@ module.exports = function(server, restify) {
     registerRoutePath = async function(rPath, method, config) {
         console.log('registerRoutePath', rPath, method, config);
 
-        APPINDEX.ROUTES[`${method}::${rPath}`] = config;
-        switch(method) {
-            case "GET":
+        if(rPath.substr(rPath.length-1,1)=="/") rPath = rPath.substr(0, rPath.length-1);
 
-                break;
-            case "POST":
+        var METHOD_TYPE = "DATA";//DATA, ERROR, CONTROLLER
+        var METHOD_PARAMS = {};
 
-                break;
-            case "PUT":
+        //Process CONFIG Setup
+        switch(typeof config.data) {
+            case "string":
+                var METHOD = config.data.split(".");
+                METHOD[0] = METHOD[0].toUpperCase();
+                
+                if(APPINDEX.CONTROLLERS[METHOD[0]]!=null) {
+                    if(APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]!=null) {
+                        console.log("METHOD FOUND", APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]);
 
-                break;
-            case "DELETE":
+                        METHOD_TYPE = "CONTROLLER";
+                        METHOD_PARAMS = APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]];
 
-                break;
+                    } else {
+                        console.log("\x1b[31m%s\x1b[0m", `\nController Method ${METHOD[0]}.${METHOD[1]} not found for ROUTE-${rPath}`);
+                        if(CONFIG.strict_routes) return;
 
+                        METHOD_TYPE = "ERROR";
+                        METHOD_PARAMS = "Controller Method ${METHOD[0]}.${METHOD[1]} not found";
+                    }
+                } else {
+                    console.log("\x1b[31m%s\x1b[0m", `\nController ${METHOD[0]} not found for ROUTE-${rPath}`);
+                    if(CONFIG.strict_routes) return;
+
+                    METHOD_TYPE = "ERROR";
+                    METHOD_PARAMS = "Controller Method ${METHOD[0]}.${METHOD[1]} not found";
+                }
+            break;
             default:
-                console.log("\x1b[31m%s\x1b[0m",`Error registering Route Path - ${rPath}@${method}`);
+                METHOD_TYPE = "DATA";
+                METHOD_PARAMS = config.data;
+        }
+        
+
+        APPINDEX.ROUTES[`${method}::${rPath}`] = config;
+
+        switch(METHOD_TYPE) {
+            case "DATA":
+                switch(method) {
+                    case "GET":
+                        server.get(rPath, (req, res, next) => {
+                            //console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "success",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+                    case "POST":
+                        server.post(rPath, (req, res, next) => {
+                            //console.log("ROUTE_POST_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "success",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+                    case "PUT":
+                        server.put(rPath, (req, res, next) => {
+                            //console.log("ROUTE_PUT_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "success",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+                    case "DELETE":
+                        server.del(rPath, (req, res, next) => {
+                            //console.log("ROUTE_DELETE_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "success",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+        
+                    default:
+                        console.log("\x1b[31m%s\x1b[0m",`Error registering Route Path - ${rPath}@${method}`);
+                        res.send({
+                            "status": "ERROR",
+                            "msg": "Route Method Not Supported"
+                        });
+                        return next();
+                }
+                break;
+            case "ERROR":
+                switch(method) {
+                    case "GET":
+                        server.get(rPath, (req, res, next) => {
+                            //console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "error",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+                    case "POST":
+                        server.post(rPath, (req, res, next) => {
+                            //console.log("ROUTE_POST_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "error",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+                    case "PUT":
+                        server.put(rPath, (req, res, next) => {
+                            //console.log("ROUTE_PUT_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "error",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+                    case "DELETE":
+                        server.del(rPath, (req, res, next) => {
+                            //console.log("ROUTE_DELETE_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({
+                                "status": "error",
+                                "data": METHOD_PARAMS
+                            });
+                            return next();
+                        });
+                        break;
+        
+                    default:
+                        console.log("\x1b[31m%s\x1b[0m",`Error registering Route Path - ${rPath}@${method}`);
+                        res.send({
+                            "status": "ERROR",
+                            "msg": "Route Method Not Supported"
+                        });
+                        return next();
+                }
+                break;
+            case "CONTROLLER":
+                switch(method) {
+                    case "GET":
+                        server.get(rPath, (req, res, next) => {
+                            //console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            METHOD_PARAMS(_.extend({}, req.params, req.query), function(data, msgObj, errObj) {
+                                if(data) {
+                                    res.send({
+                                        "status": "success",
+                                        "msg": msgObj,
+                                        "data": data
+                                    });
+                                    return next();
+                                } else {
+                                    res.send({
+                                        "status": "error",
+                                        "msg": msgObj,
+                                        "errors": errObj
+                                    });
+                                    return next();
+                                }
+                            }, req)
+                        });
+                        break;
+                    case "POST":
+                        server.post(rPath, (req, res, next) => {
+                            //console.log("ROUTE_POST_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            METHOD_PARAMS({
+                                "PARAMS": _.extend({}, req.params, req.query),
+                                "BODY": req.body
+                            }, function(data, msgObj, errObj) {
+                                if(data) {
+                                    res.send({
+                                        "status": "success",
+                                        "msg": msgObj,
+                                        "data": data
+                                    });
+                                    return next();
+                                } else {
+                                    res.send({
+                                        "status": "error",
+                                        "msg": msgObj,
+                                        "errors": errObj
+                                    });
+                                    return next();
+                                }
+                            }, req)
+                        });
+                        break;
+                    case "PUT":
+                        server.put(rPath, (req, res, next) => {
+                            //console.log("ROUTE_PUT_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            METHOD_PARAMS({
+                                "PARAMS": _.extend({}, req.params, req.query),
+                                "BODY": req.body
+                            }, function(data, msgObj, errObj) {
+                                if(data) {
+                                    res.send({
+                                        "status": "success",
+                                        "msg": msgObj,
+                                        "data": data
+                                    });
+                                    return next();
+                                } else {
+                                    res.send({
+                                        "status": "error",
+                                        "msg": msgObj,
+                                        "errors": errObj
+                                    });
+                                    return next();
+                                }
+                            }, req)
+                        });
+                        break;
+                    case "DELETE":
+                        server.del(rPath, (req, res, next) => {
+                            //console.log("ROUTE_DELETE_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            METHOD_PARAMS({
+                                "PARAMS": _.extend({}, req.params, req.query),
+                                "BODY": req.body
+                            }, function(data, msgObj, errObj) {
+                                if(data) {
+                                    res.send({
+                                        "status": "success",
+                                        "msg": msgObj,
+                                        "data": data
+                                    });
+                                    return next();
+                                } else {
+                                    res.send({
+                                        "status": "error",
+                                        "msg": msgObj,
+                                        "errors": errObj
+                                    });
+                                    return next();
+                                }
+                            }, req)
+                        });
+                        break;
+        
+                    default:
+                        console.log("\x1b[31m%s\x1b[0m",`Error registering Route Path - ${rPath}@${method}`);
+                        res.send({
+                            "status": "ERROR",
+                            "msg": "Route Method Not Supported"
+                        });
+                        return next();
+                }
+                break;
+            default:
+                switch(method) {
+                    case "GET":
+                        server.get(rPath, (req, res, next) => {
+                            console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({});
+                            return next();
+                        });
+                        break;
+                    case "POST":
+                        server.post(rPath, (req, res, next) => {
+                            console.log("ROUTE_POST_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({});
+                            return next();
+                        });
+                        break;
+                    case "PUT":
+                        server.put(rPath, (req, res, next) => {
+                            console.log("ROUTE_PUT_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({});
+                            return next();
+                        });
+                        break;
+                    case "DELETE":
+                        server.del(rPath, (req, res, next) => {
+                            console.log("ROUTE_DELETE_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+        
+                            res.send({});
+                            return next();
+                        });
+                        break;
+        
+                    default:
+                        console.log("\x1b[31m%s\x1b[0m",`Error registering Route Path - ${rPath}@${method}`);
+                        res.send({
+                            "status": "ERROR",
+                            "msg": "Route Method Not Supported"
+                        });
+                        return next();
+                }
         }
     }
 

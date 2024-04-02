@@ -27,6 +27,7 @@ module.exports = {
 	enable_public_folder: true,
 
 	allow_core_routes: false,
+	strict_routes: false,
 
 	is_microservice: false,
 	microservice_client: {

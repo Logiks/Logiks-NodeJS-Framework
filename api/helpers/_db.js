@@ -43,6 +43,7 @@ module.exports = function(server, restify) {
 	//Standard MySQL
 	db_query = function(dbkey, sql, params, callback) {
 		if(_MYSQL[dbkey]==null) {
+			console.log("\x1b[31m%s\x1b[0m",`DATABASE Not Connected for ${dbkey}`);
 			return callback(false);
 		}
 		if(CONFIG.log_sql) {
@@ -65,6 +66,7 @@ module.exports = function(server, restify) {
 
 	db_selectQ = function(dbkey, table, columns, where, whereParams, callback, additionalQueryParams) {
 		if(_MYSQL[dbkey]==null) {
+			console.log("\x1b[31m%s\x1b[0m",`DATABASE Not Connected for ${dbkey}`);
 			return callback(false);
 		}
 
@@ -117,6 +119,7 @@ module.exports = function(server, restify) {
 
 	db_insertQ1 = function(dbkey, table, data, callback) {
 		if(_MYSQL[dbkey]==null) {
+			console.log("\x1b[31m%s\x1b[0m",`DATABASE Not Connected for ${dbkey}`);
 			return callback(false);
 		}
 
@@ -147,6 +150,7 @@ module.exports = function(server, restify) {
 
 	db_insert_batchQ = function(dbkey, table, data, callback) {
 		if(_MYSQL[dbkey]==null) {
+			console.log("\x1b[31m%s\x1b[0m",`DATABASE Not Connected for ${dbkey}`);
 			return callback(false);
 		}
 
@@ -176,6 +180,7 @@ module.exports = function(server, restify) {
 
 	db_deleteQ = function(dbkey, table, where, callback) {
 		if(_MYSQL[dbkey]==null) {
+			console.log("\x1b[31m%s\x1b[0m",`DATABASE Not Connected for ${dbkey}`);
 			return callback(false);
 		}
 
@@ -211,6 +216,7 @@ module.exports = function(server, restify) {
 
 	db_updateQ = function(dbkey, table, data, where, callback) {
 		if(_MYSQL[dbkey]==null) {
+			console.log("\x1b[31m%s\x1b[0m",`DATABASE Not Connected for ${dbkey}`);
 			return callback(false);
 		}
 		var fData = [];
