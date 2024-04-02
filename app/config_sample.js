@@ -40,6 +40,10 @@ module.exports = {
 		"autodiscover": false
 	},
 
+	cors: {
+		domains: []
+	},
+
 	noauth: [
 		"/auth",
 		"/auth/register",

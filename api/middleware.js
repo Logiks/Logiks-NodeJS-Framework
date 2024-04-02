@@ -6,7 +6,8 @@
 module.exports = function(server, restify) {
      //CORS Handler
     server.use(function(req, res, next) {
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        //CONFIG.cors.domains
+        res.header('Access-Control-Allow-Origin', req.headers.host);
 
         if(req.method.toUpperCase()=="OPTIONS") {
             var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 
@@ -26,12 +27,20 @@ module.exports = function(server, restify) {
         return next();
     }); 
 
+    //Misc Data Added to req
+    server.use(function(req, res, next) {
+        console.log(req.headers.host, req.connection);
+
+        //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+        return next();
+    });
+
     // server.use(function slowHandler(req, res, next) {
     //         setTimeout(function() {
     //             return next();
     //         }, 500);
     //     });
-
 
     server.use(function(req, res, next) {
         if(req.userAgent()=="ELB-HealthChecker/2.0") {
@@ -47,6 +56,30 @@ module.exports = function(server, restify) {
             }, "requests");
         }
         
-        next();
+        return next();
+    });
+
+    /**
+     * Post Request Configuration
+     */
+    // server.on('after',restify.plugins.auditLogger({
+    //         event: 'after',
+    //         body: true,
+    //         log: server.log.child({
+    //             streams : [
+    //                 {
+    //                     level: 'info',
+    //                     path: './logs/audit.log'
+    //                 }
+    //             ]
+    //         })
+    //     })
+    // );
+
+    /**
+     * Error Handlers
+     */
+    server.on('NotFound', function (req, res, err, cb) {
+        return cb();
     });
 }

@@ -58,23 +58,31 @@ module.exports = function(server, restify) {
         });
 
         //Initiate Routes
-        fs.readdirSync('./api/routes/').forEach(function(file) {
-            if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
-                var clsName = file.replace('.json','').toUpperCase();
-                var filePath = path.resolve('./app/routes/' + file);
-                var basePath = clsName.toLowerCase();
-
-                var tempObj = require(filePath);
-                if(tempObj.enabled) {
-                    _.each(tempObj.routes, function(conf, path) {
-                        var rPath = `/${basePath}${path}`;
-                        if(conf.method==null) conf.method = "GET";
-
-                        that.registerRoutePath(rPath, conf.method.toUpperCase(), conf);
-                    })
+        if(CONFIG.allow_core_routes) {
+            fs.readdirSync('./api/routes/').forEach(function(file) {
+                if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
+                    var clsName = file.replace('.json','').toUpperCase();
+                    var filePath = path.resolve('./api/routes/' + file);
+                    var basePath = clsName.toLowerCase();
+    
+                    var tempObj = require(filePath);
+                    if(tempObj.enabled) {
+                        _.each(tempObj.routes, function(conf, path) {
+                            var rPath = `/${basePath}${path}`;
+                            if(conf.method==null) conf.method = "GET";
+    
+                            that.registerRoutePath(rPath, conf.method.toUpperCase(), conf);
+                        })
+                    }
+                } else if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var clsName = file.replace('.js','').toUpperCase();
+                    var filePath = path.resolve('./api/routes/' + file);
+                    var basePath = clsName.toLowerCase();
+    
+                    require(filePath)(server, restify);
                 }
-            }
-        });
+            });
+        }
 
         fs.readdirSync('./app/routes/').forEach(function(file) {
             if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
@@ -91,6 +99,12 @@ module.exports = function(server, restify) {
                         that.registerRoutePath(rPath, conf.method.toUpperCase(), conf);
                     })
                 }
+            } else if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                var clsName = file.replace('.js','').toUpperCase();
+                var filePath = path.resolve('./app/routes/' + file);
+                var basePath = clsName.toLowerCase();
+
+                require(filePath)(server, restify);
             }
         });
         

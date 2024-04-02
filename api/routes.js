@@ -106,7 +106,7 @@ module.exports = function(server, restify) {
         return next();
       });
 
-    server.get('/routes', (req, res, next) => {
+    server.get('/_routes', (req, res, next) => {
         if(CONFIG.debug) {
             routeList = [];
             _.each(server.router._registry._routes, function(a, b) {

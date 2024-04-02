@@ -5,22 +5,27 @@
 module.exports = function(server) {
 
     server.use(function(req, res, next) {
-        // return next(
-        //     new errors.ForbiddenError("Public Key Invalid"),
-        // );
-
-        var authkey = req.header("authkey");
-
-        req.set("GUID", "TEST");
-
-        //API Validator : FIND API Authentication Protocol for the GUID
-        //Could be Bearer, OAuth2, 2FA, etc.
-        var authHeader = req.header("authorization");
-
-        //console.log("Security Authorization");
-
+        //req.headers.host
         return next();
     });
+
+    // server.use(function(req, res, next) {
+    //     // return next(
+    //     //     new errors.ForbiddenError("Public Key Invalid"),
+    //     // );
+
+    //     var authkey = req.header("authkey");
+
+    //     req.set("GUID", "TEST");
+
+    //     //API Validator : FIND API Authentication Protocol for the GUID
+    //     //Could be Bearer, OAuth2, 2FA, etc.
+    //     var authHeader = req.header("authorization");
+
+    //     //console.log("Security Authorization");
+
+    //     return next();
+    // });
 
 
     // const rjwt = require('restify-jwt-community');

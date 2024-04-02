@@ -52,9 +52,9 @@ const server = restify.createServer({
 });
 server.config = config;
 
-require('./api/misc')(server, restify);
 require('./api/plugins')(server, restify);
 require('./api/middleware')(server, restify);
+
 
 require('./api/security')(server, restify);
 require('./api/routes')(server, restify); // Load Basic System Routes
