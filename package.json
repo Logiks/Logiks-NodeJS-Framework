@@ -43,7 +43,7 @@
         "mysql2": "^3.9.2",
         "nanoid": "^3.1.22",
         "nodemailer": "^6.6.3",
-        "restify": "^8.5.1",
+        "restify": "^11.1.0",
         "restify-errors": "^6.1.1",
         "restify-jwt-community": "^1.0.9",
         "restify-logger": "^2.0.1",
