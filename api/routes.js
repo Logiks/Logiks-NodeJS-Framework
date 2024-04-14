@@ -5,7 +5,7 @@
 module.exports = function(server, restify) {
 
     server.use((req, res, next) => {
-        res.header("Access-Control-Allow-Origin", "*");
+        //res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method"));
         res.header("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"));
         next();
@@ -39,7 +39,7 @@ module.exports = function(server, restify) {
         }
         
         server.get(
-            `/\/${CONFIG.html_server_path}\/(.*)?.*/`,
+            `/${CONFIG.html_server_path}/*`,
             restify.plugins.serveStatic({
                 directory: CONFIG.ROOT_PATH+`/${CONFIG.html_public_folder}`,
                 default: 'index.html',

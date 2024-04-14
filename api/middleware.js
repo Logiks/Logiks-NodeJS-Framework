@@ -7,7 +7,7 @@ module.exports = function(server, restify) {
      //CORS Handler
     server.use(function(req, res, next) {
         //CONFIG.cors.domains
-        res.header('Access-Control-Allow-Origin', req.headers.host);//origin
+        res.header('Access-Control-Allow-Origin', '*');//origin, req.headers.host
 
         if(req.method.toUpperCase()=="OPTIONS") {
             var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 

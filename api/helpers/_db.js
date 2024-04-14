@@ -202,11 +202,11 @@ module.exports = function(server, restify) {
 		var sql = "DELETE FROM "+table+" WHERE "+sqlWhere.join(" AND ");
 
 		if(CONFIG.log_sql) {
-			console.log("SQL", sql, vals);
+			console.log("SQL", sql, sqlWhere);
 		}
 
 		//server.mysql.query(sql, vals, function(err, results, fields) {
-		_MYSQL[dbkey].query(sql, vals, function(err, results, fields) {
+		_MYSQL[dbkey].query(sql, {}, function(err, results, fields) {
 	          if(err) {
 	            return callback(false);
 	          }
