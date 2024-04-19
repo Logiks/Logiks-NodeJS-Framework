@@ -206,7 +206,7 @@ module.exports = function(server, restify) {
 		}
 
 		//server.mysql.query(sql, vals, function(err, results, fields) {
-		_MYSQL[dbkey].query(sql, {}, function(err, results, fields) {
+		_MYSQL[dbkey].query(sql, function(err, results, fields) {
 	          if(err) {
 	            return callback(false);
 	          }

@@ -87,11 +87,19 @@ module.exports = function(server, restify) {
                           
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            res.send({
-                                "status": "success",
-                                "data": response.data
-                            });
-                            return next();
+                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                    res.send(_.extend({
+                                        "status": "success",
+                                    }, data));
+                                    return next();
+                                });
+                            } else {
+                                res.send(_.extend({
+                                    "status": "success",
+                                }, response.data));
+                                return next();
+                            }
                         }).catch(function (error) {
                             //console.log("OOOO", response);
                             if(error.response==null) {
@@ -151,22 +159,32 @@ module.exports = function(server, restify) {
                         // console.log("XXXXX", target_url, req.params, req.query, req.body, req.headers);
                         
                         delete req.params['*'];
-    
+                        req.headers['content-type'] = "application/json";
+                        
                         var options = {
                             method: 'POST',
                             url: target_url,
                             params: _.extend({}, req.params, req.query),
-                            body: req.body,
-                            headers: req.headers
+                            data: req.body,
+                            headers: _.extend({
+                            },req.headers)
                           };
-                          
+                          //`console.log("XXXX", options);
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            res.send({
-                                "status": "success",
-                                "data": response.data
-                            });
-                            return next();
+                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                    res.send(_.extend({
+                                        "status": "success",
+                                    }, data));
+                                    return next();
+                                });
+                            } else {
+                                res.send(_.extend({
+                                    "status": "success",
+                                }, response.data));
+                                return next();
+                            }
                         }).catch(function (error) {
                             //console.log("OOOO", response);
                             if(error.response==null) {
@@ -226,6 +244,7 @@ module.exports = function(server, restify) {
                         // console.log("XXXXX", target_url, req.params, req.query, req.body, req.headers);
                         
                         delete req.params['*'];
+                        req.headers['content-type'] = "application/json";
     
                         var options = {
                             method: 'PUT',
@@ -237,11 +256,19 @@ module.exports = function(server, restify) {
                           
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            res.send({
-                                "status": "success",
-                                "data": response.data
-                            });
-                            return next();
+                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                    res.send(_.extend({
+                                        "status": "success",
+                                    }, data));
+                                    return next();
+                                });
+                            } else {
+                                res.send(_.extend({
+                                    "status": "success",
+                                }, response.data));
+                                return next();
+                            }
                         }).catch(function (error) {
                             //console.log("OOOO", response);
                             if(error.response==null) {
@@ -312,11 +339,19 @@ module.exports = function(server, restify) {
                           
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            res.send({
-                                "status": "success",
-                                "data": response.data
-                            });
-                            return next();
+                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                    res.send(_.extend({
+                                        "status": "success",
+                                    }, data));
+                                    return next();
+                                });
+                            } else {
+                                res.send(_.extend({
+                                    "status": "success",
+                                }, response.data));
+                                return next();
+                            }
                         }).catch(function (error) {
                             //console.log("OOOO", response);
                             if(error.response==null) {

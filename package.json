@@ -42,6 +42,7 @@
         "mysql": "github:mysqljs/mysql",
         "mysql2": "^3.9.2",
         "nanoid": "^3.1.22",
+        "node-cron": "^3.0.3",
         "nodemailer": "^6.6.3",
         "restify": "^11.1.0",
         "restify-errors": "^6.1.1",

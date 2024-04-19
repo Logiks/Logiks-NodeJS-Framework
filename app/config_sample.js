@@ -130,5 +130,15 @@ module.exports = {
 	            })
 	        }
 		]
+	},
+
+	AUTOMATOR_JOBS: {
+		"demo1": {
+			"schedule": "* * * * * *",
+			"plugin": "demo",
+			"params": {
+				"test1": "hello world"
+			}
+		}
 	}
 };
