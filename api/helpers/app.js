@@ -13,9 +13,9 @@ const APPINDEX = {
 
 module.exports = function(server, restify) {
 
-    initialize = function() {
+	initialize = function() {
         // CONFIG.strict_routes=true;
-    }
+	}
 
     initializeApplication = function() {
         var that = this;
@@ -24,38 +24,58 @@ module.exports = function(server, restify) {
         //Initiate Mongoose
 
         //Load Controllers
-        fs.readdirSync('./app/controllers/').forEach(function(file) {
-            if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
-                var clsName = file.replace('.js','').toUpperCase();
-                var filePath = path.resolve('./app/controllers/' + file);
+        if(fs.existsSync('./app/controllers/')) {
+            fs.readdirSync('./app/controllers/').forEach(function(file) {
+                if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var clsName = file.replace('.js','').toUpperCase();
+                    var filePath = path.resolve('./app/controllers/' + file);
 
-                global[clsName] = require(filePath);//(server, restify);
-                APPINDEX.CONTROLLERS[clsName] = global[clsName];
-                //console.log("> Loading Controller", clsName);
-            }
-        });
-
+                    global[clsName] = require(filePath);//(server, restify);
+                    APPINDEX.CONTROLLERS[clsName] = global[clsName];
+                    //console.log("> Loading Controller", clsName);
+                }
+            });
+        }
+       
+        // Load vendors
+        if(fs.existsSync('./app/controllers/vendors/')) {
+            fs.readdirSync('./app/controllers/vendors/').forEach(function(file) {
+                if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var clsName = file.replace('.js','').toUpperCase();
+                    var filePath = path.resolve('./app/controllers/vendors/' + file);
+    
+                    global[clsName] = require(filePath);//(server, restify);
+                    APPINDEX.CONTROLLERS[clsName] = global[clsName];
+                    //console.log(">Loading Controller", clsName);
+                }
+            });
+        }
+        
         //Create Data Model Indexes
-        fs.readdirSync('./app/data/').forEach(function(file) {
-            if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
-                var clsName = file.replace('.json','').toUpperCase();
-                var filePath = path.resolve('./app/data/' + file);
+        if(fs.existsSync('./app/data/')) {
+            fs.readdirSync('./app/data/').forEach(function(file) {
+                if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
+                    var clsName = file.replace('.json','').toUpperCase();
+                    var filePath = path.resolve('./app/data/' + file);
 
-                APPINDEX.DATA[clsName] = require(filePath);
-            }
-        });
+                    APPINDEX.DATA[clsName] = require(filePath);
+                }
+            });
+        }
 
         //Initiate Processors
-        fs.readdirSync('./app/processors/').forEach(function(file) {
-            if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
-                var clsName = file.replace('.js','').toUpperCase();
-                var filePath = path.resolve('./app/processors/' + file);
+        if(fs.existsSync('./app/processors/')) {
+            fs.readdirSync('./app/processors/').forEach(function(file) {
+                if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var clsName = file.replace('.js','').toUpperCase();
+                    var filePath = path.resolve('./app/processors/' + file);
 
-                global[clsName] = require(filePath);
-                APPINDEX.PROCESSORS[clsName] = global[clsName];
-                //console.log("> Loading Controller", clsName);
-            }
-        });
+                    global[clsName] = require(filePath);
+                    APPINDEX.PROCESSORS[clsName] = global[clsName];
+                    //console.log("> Loading Controller", clsName);
+                }
+            });
+        }
 
         //Initiate Routes
         if(CONFIG.allow_core_routes) {
@@ -84,29 +104,31 @@ module.exports = function(server, restify) {
             });
         }
 
-        fs.readdirSync('./app/routes/').forEach(function(file) {
-            if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
-                var clsName = file.replace('.json','').toUpperCase();
-                var filePath = path.resolve('./app/routes/' + file);
-                var basePath = clsName.toLowerCase();
+        if(fs.existsSync('./app/routes/')) {
+            fs.readdirSync('./app/routes/').forEach(function(file) {
+                if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
+                    var clsName = file.replace('.json','').toUpperCase();
+                    var filePath = path.resolve('./app/routes/' + file);
+                    var basePath = clsName.toLowerCase();
 
-                var tempObj = require(filePath);
-                if(tempObj.enabled) {
-                    _.each(tempObj.routes, function(conf, path) {
-                        var rPath = `/${basePath}${path}`;
-                        if(conf.method==null) conf.method = "GET";
+                    var tempObj = require(filePath);
+                    if(tempObj.enabled) {
+                        _.each(tempObj.routes, function(conf, path) {
+                            var rPath = `/${basePath}${path}`;
+                            if(conf.method==null) conf.method = "GET";
 
-                        that.registerRoutePath(rPath, conf.method.toUpperCase(), conf);
-                    })
+                            that.registerRoutePath(rPath, conf.method.toUpperCase(), conf);
+                        })
+                    }
+                } else if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var clsName = file.replace('.js','').toUpperCase();
+                    var filePath = path.resolve('./app/routes/' + file);
+                    var basePath = clsName.toLowerCase();
+
+                    require(filePath)(server, restify);
                 }
-            } else if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
-                var clsName = file.replace('.js','').toUpperCase();
-                var filePath = path.resolve('./app/routes/' + file);
-                var basePath = clsName.toLowerCase();
-
-                require(filePath)(server, restify);
-            }
-        });
+            });
+        }
         
         console.log("\x1b[35m%s\x1b[0m", "\nApplication Initiation Complete");
     }

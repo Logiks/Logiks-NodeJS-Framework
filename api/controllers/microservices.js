@@ -69,8 +69,15 @@ module.exports = function(server, restify) {
                             return next();
                         }
     
-                        if(conf.strategy[switch_value]['processor']!=null && typeof conf.strategy[switch_value]['processor']=="function") {
-                            req = conf.strategy[switch_value]['processor'](req);
+                        if(conf.strategy[switch_value]['processor']!=null) {
+                            if(typeof conf.strategy[switch_value]['processor']=="function") {
+                                req = conf.strategy[switch_value]['processor'](req);
+                            } else if(typeof conf.strategy[switch_value]['processor']=="string") {
+                                var processor = conf.strategy[switch_value]['processor'].split(".");
+                                if(global[processor[0]]!=null && typeof global[processor[0]][processor[1]]=="function") {
+                                    req = global[processor[0]][processor[1]](req);
+                                }
+                            }
                         }
                         
                         var target_url = `${conf.strategy[switch_value]['proxy_url']}/${req.params["*"]}`;
@@ -87,13 +94,35 @@ module.exports = function(server, restify) {
                           
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
-                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                            if(conf.strategy[switch_value]['post_processor']!=null) {
+                                if(typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                    conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, data));
+                                        return next();
+                                    });
+                                } else if(typeof conf.strategy[switch_value]['post_processor']=="string") {
+                                    var postProcessor = conf.strategy[switch_value]['post_processor'].split(".");
+                                    if(global[postProcessor[0]]!=null && typeof global[postProcessor[0]][postProcessor[1]]=="function") {
+                                        global[postProcessor[0]][postProcessor[1]](req.url, response.data, function(data) {
+                                            res.send(_.extend({
+                                                "status": "success",
+                                            }, data));
+                                            return next();
+                                        });
+                                    } else {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, response.data));
+                                        return next();
+                                    }
+                                } else {
                                     res.send(_.extend({
                                         "status": "success",
-                                    }, data));
+                                    }, response.data));
                                     return next();
-                                });
+                                }
                             } else {
                                 res.send(_.extend({
                                     "status": "success",
@@ -151,8 +180,15 @@ module.exports = function(server, restify) {
                             return next();
                         }
     
-                        if(conf.strategy[switch_value]['processor']!=null && typeof conf.strategy[switch_value]['processor']=="function") {
-                            req = conf.strategy[switch_value]['processor'](req);
+                        if(conf.strategy[switch_value]['processor']!=null) {
+                            if(typeof conf.strategy[switch_value]['processor']=="function") {
+                                req = conf.strategy[switch_value]['processor'](req);
+                            } else if(typeof conf.strategy[switch_value]['processor']=="string") {
+                                var processor = conf.strategy[switch_value]['processor'].split(".");
+                                if(global[processor[0]]!=null && typeof global[processor[0]][processor[1]]=="function") {
+                                    req = global[processor[0]][processor[1]](req);
+                                }
+                            }
                         }
                         
                         var target_url = `${conf.strategy[switch_value]['proxy_url']}/${req.params["*"]}`;
@@ -172,13 +208,35 @@ module.exports = function(server, restify) {
                           //`console.log("XXXX", options);
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
-                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                            if(conf.strategy[switch_value]['post_processor']!=null) {
+                                if(typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                    conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, data));
+                                        return next();
+                                    });
+                                } else if(typeof conf.strategy[switch_value]['post_processor']=="string") {
+                                    var postProcessor = conf.strategy[switch_value]['post_processor'].split(".");
+                                    if(global[postProcessor[0]]!=null && typeof global[postProcessor[0]][postProcessor[1]]=="function") {
+                                        global[postProcessor[0]][postProcessor[1]](req.url, response.data, function(data) {
+                                            res.send(_.extend({
+                                                "status": "success",
+                                            }, data));
+                                            return next();
+                                        });
+                                    } else {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, response.data));
+                                        return next();
+                                    }
+                                } else {
                                     res.send(_.extend({
                                         "status": "success",
-                                    }, data));
+                                    }, response.data));
                                     return next();
-                                });
+                                }
                             } else {
                                 res.send(_.extend({
                                     "status": "success",
@@ -236,8 +294,15 @@ module.exports = function(server, restify) {
                             return next();
                         }
     
-                        if(conf.strategy[switch_value]['processor']!=null && typeof conf.strategy[switch_value]['processor']=="function") {
-                            req = conf.strategy[switch_value]['processor'](req);
+                        if(conf.strategy[switch_value]['processor']!=null) {
+                            if(typeof conf.strategy[switch_value]['processor']=="function") {
+                                req = conf.strategy[switch_value]['processor'](req);
+                            } else if(typeof conf.strategy[switch_value]['processor']=="string") {
+                                var processor = conf.strategy[switch_value]['processor'].split(".");
+                                if(global[processor[0]]!=null && typeof global[processor[0]][processor[1]]=="function") {
+                                    req = global[processor[0]][processor[1]](req);
+                                }
+                            }
                         }
                         
                         var target_url = `${conf.strategy[switch_value]['proxy_url']}/${req.params["*"]}`;
@@ -256,13 +321,35 @@ module.exports = function(server, restify) {
                           
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
-                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                            if(conf.strategy[switch_value]['post_processor']!=null) {
+                                if(typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                    conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, data));
+                                        return next();
+                                    });
+                                } else if(typeof conf.strategy[switch_value]['post_processor']=="string") {
+                                    var postProcessor = conf.strategy[switch_value]['post_processor'].split(".");
+                                    if(global[postProcessor[0]]!=null && typeof global[postProcessor[0]][postProcessor[1]]=="function") {
+                                        global[postProcessor[0]][postProcessor[1]](req.url, response.data, function(data) {
+                                            res.send(_.extend({
+                                                "status": "success",
+                                            }, data));
+                                            return next();
+                                        });
+                                    } else {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, response.data));
+                                        return next();
+                                    }
+                                } else {
                                     res.send(_.extend({
                                         "status": "success",
-                                    }, data));
+                                    }, response.data));
                                     return next();
-                                });
+                                }
                             } else {
                                 res.send(_.extend({
                                     "status": "success",
@@ -320,8 +407,15 @@ module.exports = function(server, restify) {
                             return next();
                         }
     
-                        if(conf.strategy[switch_value]['processor']!=null && typeof conf.strategy[switch_value]['processor']=="function") {
-                            req = conf.strategy[switch_value]['processor'](req);
+                        if(conf.strategy[switch_value]['processor']!=null) {
+                            if(typeof conf.strategy[switch_value]['processor']=="function") {
+                                req = conf.strategy[switch_value]['processor'](req);
+                            } else if(typeof conf.strategy[switch_value]['processor']=="string") {
+                                var processor = conf.strategy[switch_value]['processor'].split(".");
+                                if(global[processor[0]]!=null && typeof global[processor[0]][processor[1]]=="function") {
+                                    req = global[processor[0]][processor[1]](req);
+                                }
+                            }
                         }
                         
                         var target_url = `${conf.strategy[switch_value]['proxy_url']}/${req.params["*"]}`;
@@ -339,13 +433,35 @@ module.exports = function(server, restify) {
                           
                         axios.request(options).then(function (response) {
                             //console.log("OOOO", response);
-                            if(conf.strategy[switch_value]['post_processor']!=null && typeof conf.strategy[switch_value]['post_processor']=="function") {
-                                conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                            if(conf.strategy[switch_value]['post_processor']!=null) {
+                                if(typeof conf.strategy[switch_value]['post_processor']=="function") {
+                                    conf.strategy[switch_value]['post_processor'](req.url, response.data, function(data) {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, data));
+                                        return next();
+                                    });
+                                } else if(typeof conf.strategy[switch_value]['post_processor']=="string") {
+                                    var postProcessor = conf.strategy[switch_value]['post_processor'].split(".");
+                                    if(global[postProcessor[0]]!=null && typeof global[postProcessor[0]][postProcessor[1]]=="function") {
+                                        global[postProcessor[0]][postProcessor[1]](req.url, response.data, function(data) {
+                                            res.send(_.extend({
+                                                "status": "success",
+                                            }, data));
+                                            return next();
+                                        });
+                                    } else {
+                                        res.send(_.extend({
+                                            "status": "success",
+                                        }, response.data));
+                                        return next();
+                                    }
+                                } else {
                                     res.send(_.extend({
                                         "status": "success",
-                                    }, data));
+                                    }, response.data));
                                     return next();
-                                });
+                                }
                             } else {
                                 res.send(_.extend({
                                     "status": "success",

@@ -6,13 +6,14 @@ var _MYSQL = {};
 
 module.exports = function(server, restify) {
 
-	initialize = function(callback) {
-		if(CONFIG.dbmysql.enable) {
-
-			if(Array.isArray(CONFIG.dbmysql)) {
-				_.each(CONFIG.dbmysql, function(conf, k) {
+	initialize = function(callback) {console.log("XXXX", CONFIG.dbmysql);
+		if(CONFIG.dbmysql==null) return;
+		
+		if(Array.isArray(CONFIG.dbmysql)) {
+			_.each(CONFIG.dbmysql, function(conf, k) {
+				if(conf.enable) {
 					if(conf.keyid==null) conf.keyid = "MYSQL"+k;
-					
+				
 					// _MYSQL[conf.keyid] = mysql.createConnection(CONFIG.dbmysql);
 		        	// _MYSQL[conf.keyid].connect();
 
@@ -20,8 +21,10 @@ module.exports = function(server, restify) {
 					//.filter(a=>["host","port","user","password","database","insecureAuth","connectionLimit","debug"].indexOf(a)>=0)
 
 		        	console.log("MYSQL Initialized - "+conf.keyid);
-				})
-			} else {
+				}
+			})
+		} else {
+			if(CONFIG.dbmysql.enable) {
 				// _MYSQL["MYSQL0"] = mysql.createConnection(CONFIG.dbmysql);
 		        // _MYSQL["MYSQL0"].connect();
 
@@ -37,7 +40,7 @@ module.exports = function(server, restify) {
 					console.log("MYSQL Initialized - MYSQL0");
 				});
 			}
-	    }
+		}
 	}
 	
 	//Standard MySQL
@@ -202,7 +205,7 @@ module.exports = function(server, restify) {
 		var sql = "DELETE FROM "+table+" WHERE "+sqlWhere.join(" AND ");
 
 		if(CONFIG.log_sql) {
-			console.log("SQL", sql, sqlWhere);
+			console.log("SQL", sql, vals);
 		}
 
 		//server.mysql.query(sql, vals, function(err, results, fields) {
@@ -252,7 +255,7 @@ module.exports = function(server, restify) {
 		_MYSQL[dbkey].query(sql, vals, function(err, results, fields) {
 	          if(err) {
 	          	if(err) console.log(err);
-	            return callback(false);
+	            return callback(false,err.code,err.sqlMessage);
 	          }
 	          callback(true);
 	        });
