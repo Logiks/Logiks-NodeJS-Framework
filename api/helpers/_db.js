@@ -6,7 +6,7 @@ var _MYSQL = {};
 
 module.exports = function(server, restify) {
 
-	initialize = function(callback) {console.log("XXXX", CONFIG.dbmysql);
+	initialize = function(callback) {
 		if(CONFIG.dbmysql==null) return;
 		
 		if(Array.isArray(CONFIG.dbmysql)) {

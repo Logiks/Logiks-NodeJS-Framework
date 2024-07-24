@@ -47,6 +47,7 @@ module.exports = {
 
 	noauth: [
 		"/auth",
+		"/public",
 		"/auth/register",
 		"/auth/forgotpwd",
 		"/auth/resetpwd",
