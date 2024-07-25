@@ -45,7 +45,7 @@ module.exports = {
 		domains: []
 	},
 
-	noauth: [
+	NOAUTH: [
 		"/auth",
 		"/public",
 		"/auth/register",
