@@ -3,6 +3,7 @@
  * 
  * */
 const jwt = require("jsonwebtoken");
+
 module.exports = function(server, restify) {
     if(CONFIG.is_microservice) {
         
