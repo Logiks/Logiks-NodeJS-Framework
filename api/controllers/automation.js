@@ -44,8 +44,8 @@ module.exports = function(server, restify) {
                 });
         }
 
-        console.log("LOADED_AUTOMATORS", LOADED_PLUGINS);
-        console.log("AUTOMATOR JOBS", CONFIG.AUTOMATOR_JOBS)
+        // console.log("LOADED_AUTOMATORS", LOADED_PLUGINS);
+        // console.log("AUTOMATOR JOBS", CONFIG.AUTOMATOR_JOBS)
 
         _.each(CONFIG.AUTOMATOR_JOBS, function(conf, k) {
             if(LOADED_PLUGINS[conf.plugin.toUpperCase()]==null) {

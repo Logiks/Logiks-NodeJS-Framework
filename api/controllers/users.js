@@ -3,8 +3,6 @@
  * 
  * */
 
-global.sha1 = require('sha1');
-
 module.exports = function(server, restify) {
 
     initialize = function() {

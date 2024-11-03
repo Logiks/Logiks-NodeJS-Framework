@@ -1,0 +1,7 @@
+{
+    "HOOKS": {
+        "SECURITY1": [
+            {"method": "COMMON.updateApplicationInfo", "params": {}}
+        ]
+    }
+}
