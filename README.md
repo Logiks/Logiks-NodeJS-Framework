@@ -1,4 +1,4 @@
-# Framework-NodeJS - SmartinfoLogiks
+# Logiks - Framework-NodeJS
 
 A mordern NodeJS framework for simplifying and accelerating NodeJS development and adding low code features. 
 
