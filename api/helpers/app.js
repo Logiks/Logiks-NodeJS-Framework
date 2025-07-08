@@ -149,7 +149,7 @@ module.exports = function(server, restify) {
                 
                 if(APPINDEX.CONTROLLERS[METHOD[0]]!=null) {
                     if(APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]!=null) {
-                        console.log("METHOD FOUND", APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]);
+                        //console.log("METHOD FOUND", APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]);
 
                         METHOD_TYPE = "CONTROLLER";
                         METHOD_PARAMS = APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]];
