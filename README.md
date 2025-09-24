@@ -2,10 +2,6 @@
 
 A mordern NodeJS framework for simplifying and accelerating NodeJS development and adding low code features. 
 
-This is derived from earlier works - https://github.com/SmartinfoLogiks/Boilerplate-nodejs-api
-
-This framework is being used by SmartinfoLogiks new Development Studio and ADS
-
 ### Installation
 + Clone the repo
 + Install using npm install
