@@ -136,7 +136,8 @@ module.exports = function(server, restify) {
     registerRoutePath = async function(rPath, method, config) {
         //console.log('registerRoutePath', rPath, method, config);
 
-        if(rPath.substr(rPath.length-1,1)=="/") rPath = rPath.substr(0, rPath.length-1).replace(/_/g,"/");
+        if(rPath[0]!="_") rPath = rPath.replaceAll(/_/g,"/");
+        if(rPath.substr(rPath.length-1,1)=="/") rPath = rPath.substr(0, rPath.length-1);
 
         var METHOD_TYPE = "DATA";//DATA, ERROR, CONTROLLER
         var METHOD_PARAMS = {};
