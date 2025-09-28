@@ -3,7 +3,7 @@
 module.exports = function(server, restify) {
 
 	initialize = function() {
-		
+		console.log("\x1b[36m%s\x1b[0m","Environment Initialized");
 	}
 
 	clearEnvConfig = function() {

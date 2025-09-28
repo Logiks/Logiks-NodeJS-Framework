@@ -8,7 +8,7 @@ module.exports = function(server, restify) {
             var filePath = path.resolve('./api/helpers/' + file);
             global[className] = require(filePath)(server, restify);
     
-            console.log(">>>Loading:Helper", className, typeof global[className]);
+            // console.log(">>>Loading:Helper", className, typeof global[className]);
             if(global[className].initialize!=null) {
                 global[className].initialize();
             }
@@ -17,16 +17,20 @@ module.exports = function(server, restify) {
         //   console.log("Loading helpers : " + filePath);
     });
     
+    var CLASSLIST = [];
     fs.readdirSync('./api/controllers/').forEach(function(file) {
         if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
             var className = file.toLowerCase().replace(".js", "").toUpperCase();
             var filePath = path.resolve('./api/controllers/' + file);
             global[className] = require(filePath)(server, restify);
-    
-            console.log(">>>Loading:Controller", className, typeof global[className]);
-            if(global[className].initialize!=null) {
-                global[className].initialize();
-            }
+            CLASSLIST.push(className);
+            // console.log(">>>Loading:Controller", className, typeof global[className]);
+        }
+    });
+
+    _.each(CLASSLIST, function(className, k) {
+        if(global[className].initialize!=null) {
+            global[className].initialize();
         }
     });
     
@@ -39,9 +43,8 @@ module.exports = function(server, restify) {
         }
     
         if(server.mysql!=null) server.mysql.end();
-        //server.mongodb.
     
-        console.warn("\n\nServer Shutting Down @ "+moment().format());
+        printObj("\n\nServer Shutting Down @ "+moment().format(), "red", 0);
     
         // if (options.cleanup) console.log('clean');
         // if (exitCode || exitCode === 0) console.log(exitCode);
@@ -78,7 +81,7 @@ module.exports = function(server, restify) {
     
                 console.debug("AXIOS-Intercept-Response-Success", REQ_HOST, response.request);
     
-                new APILog({
+                _LOGGER.log({
                     "status": error.response.status,
                     "statusText": error.response.statusText,
                     "data": JSON.stringify(error.response.data),
@@ -89,7 +92,7 @@ module.exports = function(server, restify) {
                     "url": error.response.config.url,
                     "aborted": ""+error.response.request.aborted,
                     "timestamp": moment().format("Y-M-D HH:mm:ss")
-                }).save();
+                }, "requests");
     
                 return response;
             }, error => {
@@ -97,7 +100,7 @@ module.exports = function(server, restify) {
     
                 console.debug("AXIOS-Intercept-Response-Error", REQ_HOST, error);
     
-                new APILog({
+                _LOGGER.log({
                     "status": error.response.status,
                     "statusText": error.response.statusText,
                     "data": JSON.stringify(error.response.data),
@@ -108,7 +111,7 @@ module.exports = function(server, restify) {
                     "url": error.response.config.url,
                     "aborted": ""+error.response.request.aborted,
                     "timestamp": moment().format("Y-M-D HH:mm:ss")
-                }).save();
+                }, "requests");
     
                 return Promise.reject(error);
             });

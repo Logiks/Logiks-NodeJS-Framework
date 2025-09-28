@@ -487,7 +487,7 @@ module.exports = function(server, restify) {
                     });
                 })
     
-                console.log("MicroServices Initialized");
+                console.log("\x1b[36m%s\x1b[0m","MicroServices Initialized");
             }
         }
     }

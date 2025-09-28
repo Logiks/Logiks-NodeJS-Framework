@@ -33,7 +33,7 @@ module.exports = function(server, restify) {
             });
         } else {
             server.get('/', (req, res, next) => {
-                res.sendRaw(server.config.welcome);
+                res.send(CONFIG.welcome);
                 return next();
             });
         }
@@ -48,13 +48,13 @@ module.exports = function(server, restify) {
           );
     } else {
         server.get('/', (req, res, next) => {
-            res.sendRaw(server.config.welcome);
+            res.sendRaw(CONFIG.welcome);
             return next();
         });
     }
     
     server.post('/', (req, res, next) => {
-        res.sendRaw(server.config.welcome);
+        res.sendRaw(CONFIG.welcome);
         return next();
     });
 
@@ -70,8 +70,8 @@ module.exports = function(server, restify) {
             res.header('content-type', 'json');
             //res.header('timestamp', );
             res.send({
-                "SERVER": server.config.name,
-                "VERSION": server.config.version,
+                "SERVER": CONFIG.name,
+                "VERSION": CONFIG.version,
                 "TIMESTAMP": moment().format("Y-M-D HH:mm:ss")
             });
             return next();
@@ -81,12 +81,17 @@ module.exports = function(server, restify) {
         }
     });
 
-    server.get('/timestamp', (req, res, next) => {
+    server.get('/_/timestamp', (req, res, next) => {
         res.send(moment().format("Y-MM-DD HH:mm:ss"));
         return next();
     });
 
-    server.get('/_debug', (req, res, next) => {
+    server.get('/_/reboot', (req, res, next) => {
+        res.send("ok");
+        process.exit();
+    });
+
+    server.get('/_/debug', (req, res, next) => {
         if (!CONFIG.debug) {
           res.send(404);
           return next();
@@ -96,7 +101,7 @@ module.exports = function(server, restify) {
         return next();
       });
 
-    server.post('/_debug', (req, res, next) => {
+    server.post('/_/debug', (req, res, next) => {
         if (!CONFIG.debug) {
           res.send(404);
           return next();
@@ -106,7 +111,7 @@ module.exports = function(server, restify) {
         return next();
       });
 
-    server.get('/_routes', (req, res, next) => {
+    server.get('/_/routes', (req, res, next) => {
         if(CONFIG.debug) {
             routeList = [];
             _.each(server.router._registry._routes, function(a, b) {

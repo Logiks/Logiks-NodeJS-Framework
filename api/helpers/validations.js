@@ -30,6 +30,8 @@ module.exports = function(server, restify) {
 		//           max: parameters[1],
 		//         };
 		//     });
+
+		console.log("\x1b[36m%s\x1b[0m","Validation Engine Initialized");
 	}
 
 	validateRule = function(formData, ruleObj) {

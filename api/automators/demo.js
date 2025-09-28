@@ -6,7 +6,7 @@
 module.exports = {
 
     initialize: function() {
-        console.log("Demo Job Initialization");
+        printObj("Demo Job Initialization", "grey");
     },
 
     runJob: function(params) {

@@ -14,8 +14,8 @@ module.exports = function (server) {
             return next();
         }
 
-        //console.log("WWWW", req.params, req.query, req.body, req.headers);
-        //req.headers.host
+        // console.log("REQUEST", req.path(), req.params, req.query, req.body, req.headers, req.headers.host, MISC.getClientIP(req));
+        
         const pathVar = req.path().split("/");
 
         // console.log("REQ_URL", pathVar, CONFIG.NOAUTH, CONFIG.NOAUTH.indexOf("/"+pathVar[1]));
@@ -23,7 +23,7 @@ module.exports = function (server) {
             return next();
         }
 
-        var remoteIP = req.headers['x-forwarded-for'];
+        var remoteIP = MISC.getClientIP(req);
         req.set("CLIENTIP", remoteIP);
         var pathGroup = req.path().split("/").splice(0, 3).join("/");
 
@@ -50,134 +50,113 @@ module.exports = function (server) {
                 return next();
             }
         }
-
-        var apiKey = req.header("apikey");
-
-
-        var authorization = req.header("authorization");
-        const authKey = authorization = authorization?.split(" ")[1];
-        const currentUserId = req.header("cur_user");
-        // console.log('authKey, currentUserId - ', authKey, currentUserId)
-        if (authKey == "GhdV87EyaBdQEssIdVKb" && currentUserId?.length) {
-            // console.log('currentUserId - ', currentUserId)
-            console.log('validating with auth header...')
-            try {
-                if (!currentUserId) {
-                    return next(
-                        new errors.UnauthorizedError("Current User Not Provided"),
-                    );
-                }
-
-                _CACHE.fetchData("WEB_USERDATA." + currentUserId, function (userSessData) {
-                    // console.log('userSessData - ', userSessData)
-                    if (!userSessData?.length) {
-                        USERS.getUserInfoById(currentUserId, function (userData) {
-                            // console.log('userData - ', userData)
-                            if (!userData) {
-                                return next(
-                                    new errors.UnauthorizedError("Invalid Current User."),
-                                );
-                            } else {
-                                const cacheResult = _CACHE.storeData("WEB_USERDATA." + currentUserId, userData);
-                                // console.log('cacheResult - ', cacheResult)
-                                req.set("GUID", userData.guid);
-                                req.set("USERID", userData.userid);
-                                req.set("USER_NAME", userData.full_name);
-                                req.set("DESIGNATION", userData.designation);
-                                req.set("PRIVILEGE", userData.privilege);//bcm
-                                req.set("ROLE", userData.role);//bcm
-                                req.set("BANK", userData.bank);
-                                req.set("BRANCH", userData.branch);
-                                req.set("STATE", userData.state);
-                                req.set("ZONE", userData.zone);
-                                req.set("AREA", userData.area);
-                                console.log('req.headers - ', req.get('USERID'), req.get('PRIVILEGE'))
-                                return next();
-                            }
-                        })
-                    } else {
-                        req.set("GUID", userSessData.GUID);
-                        req.set("USERID", userSessData.USERID);
-                        req.set("USER_NAME", userSessData.USER_NAME);
-                        req.set("DESIGNATION", userSessData.DESIGNATION);
-                        req.set("PRIVILEGE", userSessData.PRIVILEGE);//bcm
-                        req.set("ROLE", userSessData.ROLE);//bcm
-                        req.set("BANK", userSessData.BANK);
-                        req.set("BRANCH", userSessData.BRANCH);
-                        req.set("STATE", userSessData.STATE);
-                        req.set("ZONE", userSessData.ZONE);
-                        req.set("AREA", userSessData.AREA);
-                        return next();
-                    }
-                });
-            } catch (err) {
-                logger.error("AUTH HEADER ERROR", err);
-                return next(
-                    new errors.UnauthorizedError("Invalid Auth Header"),
-                );
-            }
-        } else {
-            //get APIKEY DATA FROM DB
-            // console.log('req - ', req.url, req.headers)
-            var jwtToken = req.header("token");
-            // console.log('jwtToken - ', jwtToken)
-            if (jwtToken == null) {
-                return next(
-                    new errors.UnauthorizedError("Auth Token Invalid"),
-                );
-            }
-
-            try {
-                console.log('validating with jwt token...')
-                var decodedData = jwt.verify(jwtToken, CONFIG.AUTHJWT.secret);
-                // console.log("JWT DECODED",decodedData, Math.floor(Date.now() / 1000));
-                var sessKey = md5(CONFIG.AUTHJWT.secret + jwtToken);
-
-                _CACHE.fetchData("USERDATA." + sessKey, function (userSessData) {
-                    // console.log("usersess data", userSessData);
-                    if (!userSessData) {
-                        return next(
-                            new errors.UnauthorizedError("Auth Token Invalid Data"),
-                        );
-                    }
-
-                    sessKey = md5(CONFIG.AUTHJWT.secret + jwtToken);
-                    console.log("ACCESSID", userSessData, sessKey, decodedData.data.USERID);
-                    if (userSessData.SESSKEY != sessKey) {
-                        console.log("SESSKEY MISMATCH - MULTILOGIN", sessKey, userSessData.SESSKEY);
-                        // return next(
-                        //     new errors.UnauthorizedError("Multilogin Error"),
-                        // );
-                    }
-                    // console.log("decodedData", decodedData);
-
-                    req.set("GUID", decodedData.data.GUID);
-                    req.set("USERID", decodedData.data.USERID);
-                    req.set("USER_NAME", decodedData.data.USER_NAME);
-                    req.set("DESIGNATION", decodedData.data.DESIGNATION);
-                    req.set("PRIVILEGE", decodedData.data.PRIVILEGE);//bcm
-                    req.set("ROLE", decodedData.data.ROLE);//bcm
-                    req.set("BANK", decodedData.data.BANK);
-                    req.set("BRANCH", decodedData.data.BRANCH);
-                    req.set("STATE", decodedData.data.STATE);
-                    req.set("ZONE", decodedData.data.ZONE);
-                    req.set("AREA", decodedData.data.AREA);
-
-
-                    req.set("SESSKEY", sessKey);
-                    req.set("APIUSER", false);
-
-                    return next();
-                });
-            } catch (err) {
-                logger.error("JWT ERROR", err);
-
-                return next(
-                    new errors.UnauthorizedError("Auth Token Invalid or Expired"),
-                );
-            }
+        const authorization = req.header("authorization");
+        const appID = req.header("appid");
+        var sessKey = req.header("sesskey")
+        
+        if(sessKey==null) {
+            sessKey = sha1(req.header("authorization")+req.header("appid")+new moment());
         }
 
+        if(authorization==null) {
+            return next(new errors.UnauthorizedError("Authorization Header Missing"));
+        }
 
+        const authKey = authorization.split(" ");
+        if(authKey[1]==null || authKey[1].length==0) {
+            return next(new errors.UnauthorizedError("Authorization Header Is Blank"));
+        }
+
+        //console.log("AUTH_XXXX", authorization, authKey, appID);
+
+        AUTHKEY.fetchAuthInfo(authKey[1], function (authInfo) {
+                if(!authInfo) {
+                    return next(new errors.UnauthorizedError("Authorization Key Invalid"));
+                }
+
+                //console.log(authInfo, remoteIP);
+                //authInfo.auth_secret
+                //authInfo.active_time_start
+                //authInfo.active_time_end
+                //authInfo.threshold
+
+                if(authInfo.checksum_check==="true") {
+                    const hashkey = req.header("hashkey");
+                    if(authInfo.checksum_check!=sha1(authInfo.auth_secret+JSON.stringify(req.body))) {
+                        return next(new errors.UnauthorizedError("Authorization Failed, Checksum Mismatch Error"));
+                    }
+                }
+
+                if(authInfo.jwt_token_required=="true") {
+                    const jwtToken = req.header("auth-token");
+
+                    if(jwtToken==null || jwtToken.length==0) {
+                        return next(new errors.UnauthorizedError("Authorization Failed, Invalid JWT Token Error"));
+                    }
+
+                    return next(new errors.UnauthorizedError("Authorization Failed, JWT Token Not Supported"));
+
+                    // try {
+                    //     var decodedData = jwt.verify(jwtToken, CONFIG.AUTHJWT.secret);
+                    //     //console.log("JWT DECODED",decodedData, Math.floor(Date.now() / 1000));
+                    //     //sessKey = md5(CONFIG.AUTHJWT.secret + jwtToken);
+                    // } catch (e) {
+                    //     logger.error("JWT ERROR", err);
+                    //     return next(new errors.UnauthorizedError("Authorization Failed, JWT Token Is Invalid"));
+                    // }
+                    //_CACHE.fetchData("WEB_USERDATA." + currentUserId, function (userSessData) {});
+                    //const cacheResult = _CACHE.storeData("WEB_USERDATA." + currentUserId, userData);
+                }
+
+                if(authInfo.ipwhitelists!=null && authInfo.ipwhitelists.length>1) {
+                    authInfo.ipwhitelists = authInfo.ipwhitelists.split(",");
+
+                    if(authInfo.ipwhitelists.indexOf(remoteIP)<0) {
+                        return next(new errors.UnauthorizedError("Authorization Failed, IPWHITELISTING Required to access this service"));
+                    }
+                }
+
+                if(authInfo.scope!=null || authInfo.scope.length>0) {
+                    try {
+                        authInfo.scope = JSON.parse(authInfo.scope);
+
+                        if(authInfo.scope.APPS==null) authInfo.scope.APPS = [appID];
+                    } catch(e) {
+                        return next(new errors.UnauthorizedError("Authorization Failed, Invalid Scope Setup (1)"));
+                    }
+                } else {
+                    return next(new errors.UnauthorizedError("Authorization Failed, Invalid Scope Setup (2)"));
+                }
+
+                if(authInfo.scope.APPS.indexOf(appID)<0) {
+                    return next(new errors.UnauthorizedError("Authorization Failed, Scope Does Not Permit Access to Requested App"));
+                }
+
+                if(authInfo.scope.ROUTES && authInfo.scope.ROUTES.length>0) {
+                    if (!(authInfo.scope.ROUTES.indexOf(req.path()) >= 0 || authInfo.scope.ROUTES.indexOf("/" + pathVar[1]) >= 0)) {
+                        return next(new errors.UnauthorizedError("Authorization Failed, Scope Does Not Permit Access to Requested Path"));
+                    }
+                }
+
+                req.set("GUID", authInfo.guid);
+                req.set("APPID", appID);
+                req.set("SESSKEY", sessKey);
+
+                // req.set("USERID", decodedData.data.USERID);
+                // req.set("PRIVILEGE", userSessData.PRIVILEGE);
+                // req.set("USER_NAME", decodedData.data.USER_NAME);
+                // req.set("DESIGNATION", decodedData.data.DESIGNATION);
+
+                req.set("APIUSER", true);
+                req.set("ENV", authInfo.environment.toUpperCase());
+                req.set("REQ_POLICY", authInfo.policy);
+                req.set("REQ_SCOPE", authInfo.scope);
+                req.set("AUTH_EXPIRY", authInfo.expiry);
+                req.set("AUTH_THRESHOLD", authInfo.threshold);
+
+                HOOKS.runHook("security", {"req": req});
+
+                return next();
+            });
     });
 }

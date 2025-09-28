@@ -47,7 +47,7 @@ module.exports = {
 		//console.log(this.LOGGERS, logger);
 		// process.exit(0);
 
-		console.log("LOGGERS Initialized");
+		console.log("\x1b[36m%s\x1b[0m","LOGGERS Initialized");
 	},
 
 	log: function(logObj, logKey, logLevel) {

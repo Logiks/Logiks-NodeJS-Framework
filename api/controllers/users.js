@@ -7,7 +7,7 @@ module.exports = function(server, restify) {
 
     initialize = function() {
         if(CONFIG.cache.enable) {
-            console.log("Users Initialized");
+            console.log("\x1b[36m%s\x1b[0m","Users System Initialized");
         } else {
             return false;
         }

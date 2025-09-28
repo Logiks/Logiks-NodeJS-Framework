@@ -4,10 +4,11 @@
  * */
 
 const ioredis = require("ioredis");
-if(CONFIG.cache.enable) {
-    const redis = new ioredis(CONFIG.cache);
-}
+var redis = null;
 
+if(CONFIG.cache.enable) {
+    redis = new ioredis(CONFIG.cache);
+}
 /*
  * Cache Storage Controls all the Caching Functionality. It helps speed up fetching various cached data directly
  * using indexes. This is important as REDIS Cache forms the core to our speed
@@ -17,14 +18,14 @@ module.exports = function(server, restify) {
 
     initialize = function() {
         if(CONFIG.cache.enable) {
-            console.log("CACHE Initialized");
+            console.log("\x1b[36m%s\x1b[0m","CACHE Initialized");
         } else {
             return false;
         }
     }
 
     listCacheKeys = function(pattern, callback) {
-        if(CONFIG.cache.enable) return callback([]);
+        if(!CONFIG.cache.enable) return callback([]);
 
         if(pattern==null) pattern = "*";
 
@@ -39,13 +40,13 @@ module.exports = function(server, restify) {
     }
 
     cacheStatus = function() {
-        if(CONFIG.cache.enable) return false;
+        if(!CONFIG.cache.enable) return false;
 
         return redis.status;
     }
 
     clearCache = function(pattern) {
-        if(CONFIG.cache.enable) return false;
+        if(!CONFIG.cache.enable) return false;
         if(pattern==null) pattern = "*";
         //'sample_pattern:*'
         return redis.keys(pattern).then(function (keys) {
@@ -59,21 +60,31 @@ module.exports = function(server, restify) {
     }
 
     deleteData = function(cacheKey) {
-        if(CONFIG.cache.enable) return false;
+        if(!CONFIG.cache.enable) return false;
         clearCache(cacheKey);
     }
 
     storeData = function(cacheKey, data) {
-        if(CONFIG.cache.enable) return false;
+        if(!CONFIG.cache.enable) return false;
         if (redis.status != "ready") return data;
-
+        
         if (typeof data == "object") data = JSON.stringify(data);
         redis.set(cacheKey, data);
         return data;
     }
 
+    storeDataEx = function(cacheKey, data, expires) {
+        if(!CONFIG.cache.enable) return false;
+        if (redis.status != "ready") return data;
+
+        if (typeof data == "object") data = JSON.stringify(data);
+        
+        redis.set(cacheKey, data, "EX", expires);//In Seconds
+        return data;
+    }
+
     fetchData = function(cacheKey, callback, defaultData = false) {
-        if(CONFIG.cache.enable) return callback([], "error");
+        if(!CONFIG.cache.enable) return callback([], "error");
 
         if (redis.status != "ready") {
             callback(defaultData, "error");

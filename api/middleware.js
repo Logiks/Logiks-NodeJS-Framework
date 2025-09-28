@@ -12,7 +12,8 @@ module.exports = function(server, restify) {
         if(req.method.toUpperCase()=="OPTIONS") {
             var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 
                 'Api-Version', 'Origin', 'X-Requested-With', 
-                'x-data-hash', 'authorization', 'auth-token'];
+                'x-data-hash', 'authorization', 'auth-token', 
+                "appid", "appkey", "apikey", "sesskey"];
 
             res.header('Access-Control-Allow-Credentials', true);
             res.header('Access-Control-Allow-Headers', allowHeaders.join(', '));
@@ -40,15 +41,28 @@ module.exports = function(server, restify) {
         }
         
         if(CONFIG.log_requests) {
+            console.info({
+                "PATH":req.path(),
+                "METHOD": req.method, 
+                "BODY": req.body, 
+                "QUERY": req.query, 
+                "PARAMS": req.params,
+                "HEADERS": req.headers,
+                "HOST": req.header("host"),
+                "CLIENT_IP": MISC.getClientIP(req),//req.header("x-forwarded-for")
+                "USER_AGENT": req.userAgent(),
+            });
+            
             _LOGGER.log({
                 "PATH":req.path(),
                 "METHOD": req.method, 
                 "BODY": req.body, 
                 "QUERY": req.query, 
                 "PARAMS": req.params,
-                "USER_AGENT": req.userAgent(),
+                "HEADERS": req.headers,
                 "HOST": req.header("host"),
-                "CLIENT_IP": req.header("x-forwarded-for")
+                "CLIENT_IP": MISC.getClientIP(req),//req.header("x-forwarded-for")
+                "USER_AGENT": req.userAgent(),
             }, "requests");
         }
         

@@ -23,7 +23,8 @@ module.exports = function(server, restify) {
                 console.error(e);
             }
         }
-        console.log("HOOKS Initialized With-"+Object.keys(HOOKS_REGISTER).length+" Active Hook");
+        
+        console.log("\x1b[36m%s\x1b[0m", "HOOKS Initialized With-"+Object.keys(HOOKS_REGISTER).length+" Active Hook");
     }
 
     registerHook = function(hookid, func, params) {

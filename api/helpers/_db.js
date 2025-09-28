@@ -17,10 +17,15 @@ module.exports = function(server, restify) {
 					// _MYSQL[conf.keyid] = mysql.createConnection(CONFIG.dbmysql);
 		        	// _MYSQL[conf.keyid].connect();
 
-					_MYSQL[conf.keyid] = mysql.createPool(conf);
+					const KEYID = conf.keyid;
+
+					delete conf.enable;
+					delete conf.keyid;
+
+					_MYSQL[KEYID] = mysql.createPool(conf);
 					//.filter(a=>["host","port","user","password","database","insecureAuth","connectionLimit","debug"].indexOf(a)>=0)
 
-		        	console.log("MYSQL Initialized - "+conf.keyid);
+		        	console.log("\x1b[36m%s\x1b[0m","MYSQL Initialized - "+KEYID);
 				}
 			})
 		} else {
@@ -28,7 +33,11 @@ module.exports = function(server, restify) {
 				// _MYSQL["MYSQL0"] = mysql.createConnection(CONFIG.dbmysql);
 		        // _MYSQL["MYSQL0"].connect();
 
-				_MYSQL["MYSQL0"] = mysql.createPool(CONFIG.dbmysql);
+				var mysqlConfig = CONFIG.dbmysql;
+				delete mysqlConfig.enable;
+				delete mysqlConfig.keyid;
+
+				_MYSQL["MYSQL0"] = mysql.createPool(mysqlConfig);
 				//.filter(a=>["host","port","user","password","database","insecureAuth","connectionLimit","debug"].indexOf(a)>=0)
 
 				_MYSQL["MYSQL0"].getConnection(function(err,connection){
@@ -37,7 +46,7 @@ module.exports = function(server, restify) {
 					  return;
 					}   
 					
-					console.log("MYSQL Initialized - MYSQL0");
+					console.log("\x1b[36m%s\x1b[0m","MYSQL Initialized - MYSQL0");
 				});
 			}
 		}
@@ -100,7 +109,7 @@ module.exports = function(server, restify) {
 		}
 
 		if(additionalQueryParams!=null && additionalQueryParams.length>0) {
-			sql += additionalQueryParams;
+			sql += " "+ additionalQueryParams;
 		}
 
 		// console.log("_selectQ", sql);
@@ -143,7 +152,7 @@ module.exports = function(server, restify) {
 		//server.mysql.query(sql, vals, function(err, results, fields) {
 		_MYSQL[dbkey].query(sql, vals, function(err, results, fields) {
 	          if(err) {
-	          	// console.log(err);
+	          	console.log(err);
 	            return callback(false, err.code, err.sqlMessage);
 	          }
 

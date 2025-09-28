@@ -18,7 +18,7 @@ module.exports = function(server, restify) {
             allowDots: true,
             maxBodySize: 0,
             overrideParams: false,
-            maxFieldsSize: 2 * 1024 * 1024
+            maxFieldsSize: 20 * 1024 * 1024 //20 MB
         }));//req.body
     //server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
     // server.use(restify.plugins.jsonp());

@@ -21,10 +21,29 @@ module.exports = function(server, restify) {
         var that = this;
 
         //Initiate Sequelize
-        //Initiate Mongoose
+
+        //Load Helpers
+        if(fs.existsSync('./app/helpers/')) {
+            fs.readdirSync('./app/helpers/').forEach(function(file) {
+                if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var className = file.toLowerCase().replace(".js", "").toUpperCase();
+                    var filePath = path.resolve('./app/helpers/' + file);
+                    global[className] = require(filePath)(server, restify);
+            
+                    // console.log(">>>Loading:Helper", className, typeof global[className]);
+                    if(global[className].initialize!=null) {
+                        global[className].initialize();
+                    }
+                    
+                }
+                //   console.log("Loading helpers : " + filePath);
+            });
+        }
 
         //Load Controllers
         if(fs.existsSync('./app/controllers/')) {
+            var CLASSLIST = [];
+            
             fs.readdirSync('./app/controllers/').forEach(function(file) {
                 if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
                     var clsName = file.replace('.js','').toUpperCase();
@@ -32,6 +51,27 @@ module.exports = function(server, restify) {
 
                     global[clsName] = require(filePath);//(server, restify);
                     APPINDEX.CONTROLLERS[clsName] = global[clsName];
+                    CLASSLIST.push(clsName);
+                    //console.log("> Loading Controller", clsName);
+                }
+            });
+
+            _.each(CLASSLIST, function(className, k) {
+                if(global[className].initialize!=null) {
+                    global[className].initialize(server, restify);
+                }
+            });
+        }
+
+        //Initiate Default Processors
+        if(fs.existsSync('./api/processors/')) {
+            fs.readdirSync('./api/processors/').forEach(function(file) {
+                if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
+                    var clsName = file.replace('.js','').toUpperCase();
+                    var filePath = path.resolve('./api/processors/' + file);
+
+                    global[clsName] = require(filePath);
+                    APPINDEX.PROCESSORS[clsName] = global[clsName];
                     //console.log("> Loading Controller", clsName);
                 }
             });
@@ -57,8 +97,16 @@ module.exports = function(server, restify) {
                 if ((file.indexOf(".json") > 0 && (file.indexOf(".json") + 5 == file.length))) {
                     var clsName = file.replace('.json','').toUpperCase();
                     var filePath = path.resolve('./app/data/' + file);
+                    //console.log("filePath", filePath);
 
-                    APPINDEX.DATA[clsName] = require(filePath);
+                    try {
+                        var jsonData = JSON.parse(fs.readFileSync(filePath, "utf8"))
+                        APPINDEX.CONTROLLERS[clsName] = generateController(clsName, jsonData);
+
+                        //APPINDEX.DATA[clsName] = require(filePath);
+                    } catch(e) {
+                        console.log("Error loading Data Controller", clsName);
+                    }
                 }
             });
         }
@@ -130,27 +178,28 @@ module.exports = function(server, restify) {
             });
         }
         
-        console.log("\x1b[35m%s\x1b[0m", "\nApplication Initiation Complete");
+        printObj("Application Initiation Complete", "sky");
     }
 
     registerRoutePath = async function(rPath, method, config) {
-        //console.log('registerRoutePath', rPath, method, config);
-
+        // console.log('registerRoutePath', rPath, method, config);
+        
         if(rPath[0]!="_") rPath = rPath.replaceAll(/_/g,"/");
         if(rPath.substr(rPath.length-1,1)=="/") rPath = rPath.substr(0, rPath.length-1);
 
         var METHOD_TYPE = "DATA";//DATA, ERROR, CONTROLLER
         var METHOD_PARAMS = {};
+        //console.info("registerRoutePath>>", METHOD_TYPE, METHOD_PARAMS, rPath, method, config);
 
         //Process CONFIG Setup
         switch(typeof config.data) {
             case "string":
                 var METHOD = config.data.split(".");
                 METHOD[0] = METHOD[0].toUpperCase();
-                
+
                 if(APPINDEX.CONTROLLERS[METHOD[0]]!=null) {
                     if(APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]!=null) {
-                        //console.log("METHOD FOUND", APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]);
+                        // console.log("METHOD FOUND", APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]]);
 
                         METHOD_TYPE = "CONTROLLER";
                         METHOD_PARAMS = APPINDEX.CONTROLLERS[METHOD[0]][METHOD[1]];
@@ -174,7 +223,7 @@ module.exports = function(server, restify) {
                 METHOD_TYPE = "DATA";
                 METHOD_PARAMS = config.data;
         }
-        
+        // console.log("XXXXXXX", METHOD_TYPE, METHOD_PARAMS, rPath);
 
         APPINDEX.ROUTES[`${method}::${rPath}`] = config;
 
@@ -298,20 +347,50 @@ module.exports = function(server, restify) {
                             //console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
         
                             METHOD_PARAMS(_.extend({}, req.params, req.query), function(data, msgObj, errObj) {
-                                if(data) {
-                                    res.send({
-                                        "status": "success",
-                                        "msg": msgObj,
-                                        "data": data
-                                    });
-                                    return next();
-                                } else {
+                                //console.log("XXXX", config.processor, data, APPINDEX.PROCESSORS);
+
+                                if(errObj) {
                                     res.send({
                                         "status": "error",
                                         "msg": msgObj,
                                         "errors": errObj
                                     });
                                     return next();
+                                } else {
+                                    if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
+                                        const processorObj = config.processor.split(".");
+                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                                res.send({
+                                                    "status": "success",
+                                                    "msg": msgObj,
+                                                    "data": resultData
+                                                });
+                                                return next();
+                                            });
+                                        } else if(CONFIG.strict_processors) {
+                                            res.send({
+                                                "status": "error",
+                                                "msg": "Output Processor Error",
+                                                "errors": processorObj
+                                            });
+                                            return next();
+                                        } else {
+                                            res.send({
+                                                "status": "success",
+                                                "msg": msgObj,
+                                                "data": data
+                                            });
+                                            return next();
+                                        }
+                                    } else {
+                                        res.send({
+                                            "status": "success",
+                                            "msg": msgObj,
+                                            "data": data
+                                        });
+                                        return next();
+                                    }
                                 }
                             }, req)
                         });
@@ -324,20 +403,48 @@ module.exports = function(server, restify) {
                                 "PARAMS": _.extend({}, req.params, req.query),
                                 "BODY": req.body
                             }, function(data, msgObj, errObj) {
-                                if(data) {
-                                    res.send({
-                                        "status": "success",
-                                        "msg": msgObj,
-                                        "data": data
-                                    });
-                                    return next();
-                                } else {
+                                if(errObj) {
                                     res.send({
                                         "status": "error",
                                         "msg": msgObj,
                                         "errors": errObj
                                     });
                                     return next();
+                                } else {
+                                    if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
+                                        const processorObj = config.processor.split(".");
+                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                                res.send({
+                                                    "status": "success",
+                                                    "msg": msgObj,
+                                                    "data": resultData
+                                                });
+                                                return next();
+                                            });
+                                        } else if(CONFIG.strict_processors) {
+                                            res.send({
+                                                "status": "error",
+                                                "msg": "Output Processor Error",
+                                                "errors": processorObj
+                                            });
+                                            return next();
+                                        } else {
+                                            res.send({
+                                                "status": "success",
+                                                "msg": msgObj,
+                                                "data": data
+                                            });
+                                            return next();
+                                        }
+                                    } else {
+                                        res.send({
+                                            "status": "success",
+                                            "msg": msgObj,
+                                            "data": data
+                                        });
+                                        return next();
+                                    }
                                 }
                             }, req)
                         });
@@ -350,20 +457,48 @@ module.exports = function(server, restify) {
                                 "PARAMS": _.extend({}, req.params, req.query),
                                 "BODY": req.body
                             }, function(data, msgObj, errObj) {
-                                if(data) {
-                                    res.send({
-                                        "status": "success",
-                                        "msg": msgObj,
-                                        "data": data
-                                    });
-                                    return next();
-                                } else {
+                                if(errObj) {
                                     res.send({
                                         "status": "error",
                                         "msg": msgObj,
                                         "errors": errObj
                                     });
                                     return next();
+                                } else {
+                                    if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
+                                        const processorObj = config.processor.split(".");
+                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                                res.send({
+                                                    "status": "success",
+                                                    "msg": msgObj,
+                                                    "data": resultData
+                                                });
+                                                return next();
+                                            });
+                                        } else if(CONFIG.strict_processors) {
+                                            res.send({
+                                                "status": "error",
+                                                "msg": "Output Processor Error",
+                                                "errors": processorObj
+                                            });
+                                            return next();
+                                        } else {
+                                            res.send({
+                                                "status": "success",
+                                                "msg": msgObj,
+                                                "data": data
+                                            });
+                                            return next();
+                                        }
+                                    } else {
+                                        res.send({
+                                            "status": "success",
+                                            "msg": msgObj,
+                                            "data": data
+                                        });
+                                        return next();
+                                    }
                                 }
                             }, req)
                         });
@@ -376,20 +511,48 @@ module.exports = function(server, restify) {
                                 "PARAMS": _.extend({}, req.params, req.query),
                                 "BODY": req.body
                             }, function(data, msgObj, errObj) {
-                                if(data) {
-                                    res.send({
-                                        "status": "success",
-                                        "msg": msgObj,
-                                        "data": data
-                                    });
-                                    return next();
-                                } else {
+                                if(errObj) {
                                     res.send({
                                         "status": "error",
                                         "msg": msgObj,
                                         "errors": errObj
                                     });
                                     return next();
+                                } else {
+                                    if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
+                                        const processorObj = config.processor.split(".");
+                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                                res.send({
+                                                    "status": "success",
+                                                    "msg": msgObj,
+                                                    "data": resultData
+                                                });
+                                                return next();
+                                            });
+                                        } else if(CONFIG.strict_processors) {
+                                            res.send({
+                                                "status": "error",
+                                                "msg": "Output Processor Error",
+                                                "errors": processorObj
+                                            });
+                                            return next();
+                                        } else {
+                                            res.send({
+                                                "status": "success",
+                                                "msg": msgObj,
+                                                "data": data
+                                            });
+                                            return next();
+                                        }
+                                    } else {
+                                        res.send({
+                                            "status": "success",
+                                            "msg": msgObj,
+                                            "data": data
+                                        });
+                                        return next();
+                                    }
                                 }
                             }, req)
                         });
@@ -451,4 +614,34 @@ module.exports = function(server, restify) {
     }
 
     return this;
+}
+
+
+function generateController(controllerID, controllerConfig) {
+    var newController = {};
+
+    _.each(controllerConfig, function(conf, funcKey) {
+        newController[funcKey] = function(params, callback) {
+            console.log("GENERATED_CONTROLLER", funcKey, params, conf);
+
+            switch(conf.type) {
+                case "sql":
+                    //console.log("conf", conf.where);
+                    var additionalQuery = "";
+                    if(conf.group_by) additionalQuery += ` GROUP BY ${conf.group_by}`;
+                    if(conf.order_by) additionalQuery += ` ORDER BY ${conf.order_by}`;
+
+                    db_selectQ("MYSQL0", conf.table, conf.columns, conf.where, {}, function(data, errorMsg) {
+                        //console.log("XXXXXXX", data, errorMsg);
+                        if(errorMsg) callback([], "", errorMsg);
+                        else callback(data, "");
+                    }, additionalQuery);
+                    break;
+                default:
+                    callback(false, "", "Controller Not Found");
+            }
+        }
+    });
+
+    return newController;
 }

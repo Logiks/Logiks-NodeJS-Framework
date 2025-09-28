@@ -71,7 +71,7 @@ module.exports = function(server, restify) {
             };
         })
 
-        console.log("Automator Initialized With-"+Object.keys(ACTIVE_JOBS).length+" Active Jobs");
+        console.log("\x1b[36m%s\x1b[0m", "Automator Initialized With-"+Object.keys(ACTIVE_JOBS).length+" Active Jobs");
     }
 
     return this;
