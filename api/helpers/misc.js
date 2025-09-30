@@ -1,6 +1,9 @@
 //Misc Helper Functions
 
 const { customAlphabet } = require("nanoid");
+const Validator = require('validatorjs');
+const crypto = require('crypto');
+// const sha1 = require('sha1');
 
 module.exports = function(server, restify) {
 
@@ -132,15 +135,22 @@ module.exports = function(server, restify) {
                     }, {});
   }
 
-  generateDefaultDBRecord = function(req) {
+  generateDefaultDBRecord = function(req, forUpdate = false) {
     var dated = moment().format("Y-M-D HH:mm:ss");
-    return {
-      "guid": req.get("GUID"),
-      "created_on": dated,
-      "created_by": req?.get("USERID")?req?.get("USERID"):"admin",
-      "edited_on": dated,
-      "edited_by": req?.get("USERID")?req?.get("USERID"):"admin",
-    };
+    if(forUpdate) {
+      return {
+        "edited_on": dated,
+        "edited_by": req?.get("USERID")?req?.get("USERID"):"admin",
+      };
+    } else {
+      return {
+        "guid": req.get("GUID"),
+        "created_on": dated,
+        "created_by": req?.get("USERID")?req?.get("USERID"):"admin",
+        "edited_on": dated,
+        "edited_by": req?.get("USERID")?req?.get("USERID"):"admin",
+      };
+    }
   }
 
   return this;
@@ -181,4 +191,13 @@ global.printObj = function(msg, clr, intent) {
       default:
           console.log(msg);
   }
+}
+
+global.validateRule = function(formData, ruleObj) {
+  let validation = new Validator(formData, ruleObj);
+
+  return {
+    "status": validation.passes(),
+    "errors": validation.errors.all()
+  };
 }

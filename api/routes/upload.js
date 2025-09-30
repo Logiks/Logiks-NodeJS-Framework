@@ -64,12 +64,10 @@ module.exports = function (server, restify) {
     // new logic for doc upload
     server.post('/upload', (req, res, next) => {
         var vStatus = validateRule(req.body, {
-            los_no: 'required', // LOS/88802
-            doc_type: 'in:laf,cam|required', // LAF/CAM
-            // cam_stage: 'required'
-            upload_type: 'required', // gallery
-            customer_id: 'required', // 23
-            doc_name: 'required', // pan_card
+            doc_name: 'required',
+            doc_group: 'required',
+            doc_type: 'required',
+            upload_type: 'required',
             content: 'required',
         });
 
@@ -82,21 +80,10 @@ module.exports = function (server, restify) {
             return next();
         }
 
-        if (req.body.doc_type == 'cam' && (!req.body?.cam_stage?.length)) {
-            res.send({
-                "status": "error",
-                "msg": "Please provide stage for cam document upload",
-            });
-            return next();
-        }
-
-        // filename for laf: laf-customer_id-doc_name-nanoid
-        // filename for cam: cam-doc_type-customer_id-doc_name-nanoid  
-        var los_no = req.body.los_no.replace(/[^\w\s]/gi, '');
         var upload_type = req.body.upload_type;
         const doc_type = req.body.doc_type;
-        const customer_id = req.body.customer_id;
         var doc_name = req.body.doc_name;
+        var doc_group = req.body.doc_group;
         var content = req.body.content;
         var fileID = nanoid();
 
@@ -113,13 +100,9 @@ module.exports = function (server, restify) {
             ext = temp[temp.length - 1];
         }
         // console.log("\nYYYY", content);
-        var FILE_DIR = BASE_URL + los_no + '/';
-        var FILE_PATH = "" //FILE_DIR + doc_name+"_"+fileID+"."+ext;
-        if (doc_type == 'laf') {
-            FILE_PATH = FILE_DIR + doc_type + "-" + customer_id + "-" + doc_name + "-" + fileID + "." + ext;
-        } else {
-            FILE_PATH = FILE_DIR + doc_type + "-" + req.body.cam_stage + "-" + customer_id + "-" + doc_name + "-" + fileID + "." + ext;
-        }
+        var FILE_DIR = BASE_URL + doc_group + '/';
+        var FILE_PATH = FILE_DIR + doc_type + "-" + doc_name + "-" + fileID + "." + ext;
+
         var TARGET_FILE_PATH = ROOT_PATH + "/" + FILE_PATH;
         var TARGET_DIR_PATH = ROOT_PATH + "/" + FILE_DIR;
         var TARGET_FILE_URL = CONFIG.BASE_URL + FILE_PATH;
@@ -155,7 +138,7 @@ module.exports = function (server, restify) {
     // retrieve zip of files
     server.post('/files/zip', (req, res, next) => {
         var vStatus = validateRule(req.body, {
-            los_no: 'required', // LOS/88802
+            doc_group: 'required', // LOS/88802
         });
 
         if (!vStatus.status) {
@@ -168,13 +151,13 @@ module.exports = function (server, restify) {
         }
 
         try {
-            const los_no = req.body.los_no.replace(/[^\w\s]/gi, '');
-            var FILE_DIR = CONFIG.ROOT_PATH + BASE_URL + los_no + '/';
+            const doc_group = req.body.doc_group.replace(/[^\w\s]/gi, '');
+            var FILE_DIR = CONFIG.ROOT_PATH + BASE_URL + doc_group + '/';
             // console.log(FILE_DIR)
             if (fs.existsSync(FILE_DIR)) {
                 const files = fs.readdirSync(FILE_DIR);
                 // console.log('files - ', files)s
-                createZip(files, FILE_DIR, los_no)
+                createZip(files, FILE_DIR, doc_group)
                     .then(outputPath => {
                         const fileUrl = CONFIG.BASE_URL + "/" + CONFIG.html_public_folder + "/" + path.basename(outputPath);
                         res.send({

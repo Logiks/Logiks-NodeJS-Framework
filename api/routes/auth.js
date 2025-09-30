@@ -53,7 +53,7 @@ module.exports = function(server, restify) {
                     var token = jwt.sign({
                         iat: Math.floor(Date.now() / 1000),
                         exp: Math.floor(Date.now() / 1000) + parseInt(CONFIG.AUTHJWT.expires),
-                        data: {
+                        data: encryptData(JSON.stringify({
                             GUID: userInfo.guid,
                             USERID: userInfo.userid,
                             USER_NAME: userInfo.full_name,
@@ -68,7 +68,7 @@ module.exports = function(server, restify) {
                             AREA: userInfo.area,
                             
                             REMOTE_IP: (req.headers['x-forwarded-for'])?req.headers['x-forwarded-for']:"1.1.1.1",
-                        }
+                        }), CONFIG.SALT_KEY)
                     }, CONFIG.AUTHJWT.secret);
             
                     var sessKey = md5(CONFIG.AUTHJWT.secret + token);
@@ -144,8 +144,12 @@ module.exports = function(server, restify) {
         });
 
         server.get('/logout', (req, res, next) => {
-            var jwtToken = req.header("token");
-            console.log("jwtToken", jwtToken);
+            const jwtToken = req.header("auth-token");
+            if(jwtToken==null || jwtToken.length==0) {
+            } else {
+                const sessKey = sha1(CONFIG.AUTHJWT.secret + jwtToken);
+                _CACHE.deleteData("USERDATA." + sessKey);
+            }
 
             res.send("OK");
             return next();

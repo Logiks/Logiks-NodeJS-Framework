@@ -113,5 +113,35 @@ module.exports = function(server, restify) {
         });
     }
 
+    fetchDataSync = async function(cacheKey, defaultData = false) {
+        if(!CONFIG.cache.enable) return defaultData;
+
+        if (redis.status != "ready") {
+            callback(defaultData, "error");
+            return;
+        }
+        cacheObj = this;
+        result = false;
+
+        var result = await redis.get(cacheKey);
+
+        if (result == null) {
+            result = cacheObj.storeData(cacheKey, defaultData);
+        }
+
+        if (typeof result == "string") {
+            try {
+                resultJSON = JSON.parse(result);
+                if (resultJSON != null) {
+                    result = resultJSON;
+                }
+            } catch (e) {
+
+            }
+        }
+
+        return result
+    }
+
     return this;
 }

@@ -17,6 +17,27 @@ module.exports = function(server, restify) {
 			  return true;
 			}, 'The :attribute mobile number is not valid');
 
+		Validator.register('json', function (value) {
+				// If value is already an object or array, treat as valid
+				if (typeof value === 'object' && value !== null) {
+				return true;
+				}
+				// If value is a string, try parsing
+				if (typeof value === 'string') {
+				try {
+					JSON.parse(value);
+					return true;
+				} catch (e) {
+					return false;
+				}
+				}
+				return false;
+			},
+			'The :attribute field must be valid JSON.'
+		);
+
+		//boolean
+
 		// Validator.register(
 		//     'date_between',
 		//     function (value, requirement) {
@@ -41,26 +62,6 @@ module.exports = function(server, restify) {
 			"status": validation.passes(),
 			"errors": validation.errors.all()
 		};
-	}
-
-
-	validate = function(formData, ruleKey) {
-		let data = {
-		  name: 'John',
-		  email: 'johndoe@gmail.com',
-		  age: 28
-		};
-		 
-		let rules = {
-		  name: 'required',
-		  email: 'required|email',
-		  age: 'min:18'
-		};
-		 
-		let validation = new Validator(data, rules);
-
-		validation.passes(); // true
-		validation.fails(); // false
 	}
 
 	return this;

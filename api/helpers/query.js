@@ -31,6 +31,8 @@ module.exports = function(server, restify) {
         var orderby = false;
         var having = false;
 
+        if(!sqlObj.column && sqlObj.cols) sqlObj.column = sqlObj.cols;
+
         if (Array.isArray(sqlObj.column)) {
             columnsStr = sqlObj.column
                 .map((a) => {

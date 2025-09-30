@@ -24,7 +24,7 @@ module.exports = function(server, restify) {
         } else {
             if(CONFIG.APPKEYS!=null && CONFIG.APPKEYS[authKey]!=null) {
                 callback(_.merge({
-                    "guid": "AI00",
+                    "guid": "global",
                     "title": "-",
                     "auth_key": authKey,
                     "auth_secret": sha1(authKey),
