@@ -52,7 +52,7 @@ module.exports = function(server, restify) {
                     global[clsName] = require(filePath);//(server, restify);
                     APPINDEX.CONTROLLERS[clsName] = global[clsName];
                     CLASSLIST.push(clsName);
-                    //console.log("> Loading Controller", clsName);
+                    // console.log("> Loading Controller", clsName);
                 }
             });
 
@@ -209,14 +209,14 @@ module.exports = function(server, restify) {
                         if(CONFIG.strict_routes) return;
 
                         METHOD_TYPE = "ERROR";
-                        METHOD_PARAMS = "Controller Method ${METHOD[0]}.${METHOD[1]} not found";
+                        METHOD_PARAMS = `Controller Method ${METHOD[0]}.${METHOD[1]} not found`;
                     }
                 } else {
                     console.log("\x1b[31m%s\x1b[0m", `\nController ${METHOD[0]} not found for ROUTE-${rPath}`);
                     if(CONFIG.strict_routes) return;
 
                     METHOD_TYPE = "ERROR";
-                    METHOD_PARAMS = "Controller Method ${METHOD[0]}.${METHOD[1]} not found";
+                    METHOD_PARAMS = `Controller Method ${METHOD[0]}.${METHOD[1]} not found`;
                 }
             break;
             default:
@@ -344,10 +344,10 @@ module.exports = function(server, restify) {
                 switch(method) {
                     case "GET":
                         server.get(rPath, (req, res, next) => {
-                            //console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
+                            // console.log("ROUTE_GET_CONFIG", config, METHOD_TYPE, METHOD_PARAMS);
         
                             METHOD_PARAMS(_.extend({}, req.params, req.query), function(data, msgObj, errObj) {
-                                //console.log("XXXX", config.processor, data, APPINDEX.PROCESSORS);
+                                // console.log("XXXX", config.processor, data, APPINDEX.PROCESSORS);
 
                                 if(errObj) {
                                     res.send({
@@ -359,8 +359,8 @@ module.exports = function(server, restify) {
                                 } else {
                                     if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
                                         const processorObj = config.processor.split(".");
-                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
-                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                        if(APPINDEX.PROCESSORS[processorObj[0].toUpperCase()] && typeof APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]](data, config, req, function(resultData) {
                                                 res.send({
                                                     "status": "success",
                                                     "msg": msgObj,
@@ -392,7 +392,7 @@ module.exports = function(server, restify) {
                                         return next();
                                     }
                                 }
-                            }, req)
+                            }, req, res);
                         });
                         break;
                     case "POST":
@@ -413,8 +413,8 @@ module.exports = function(server, restify) {
                                 } else {
                                     if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
                                         const processorObj = config.processor.split(".");
-                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
-                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                        if(APPINDEX.PROCESSORS[processorObj[0].toUpperCase()] && typeof APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]](data, config, req, function(resultData) {
                                                 res.send({
                                                     "status": "success",
                                                     "msg": msgObj,
@@ -446,7 +446,7 @@ module.exports = function(server, restify) {
                                         return next();
                                     }
                                 }
-                            }, req)
+                            }, req, res);
                         });
                         break;
                     case "PUT":
@@ -467,8 +467,8 @@ module.exports = function(server, restify) {
                                 } else {
                                     if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
                                         const processorObj = config.processor.split(".");
-                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
-                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                        if(APPINDEX.PROCESSORS[processorObj[0].toUpperCase()] && typeof APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]](data, config, req, function(resultData) {
                                                 res.send({
                                                     "status": "success",
                                                     "msg": msgObj,
@@ -500,7 +500,7 @@ module.exports = function(server, restify) {
                                         return next();
                                     }
                                 }
-                            }, req)
+                            }, req, res);
                         });
                         break;
                     case "DELETE":
@@ -521,8 +521,8 @@ module.exports = function(server, restify) {
                                 } else {
                                     if(config.processor && config.processor.length>0 && config.processor.split(".").length>1) {
                                         const processorObj = config.processor.split(".");
-                                        if(APPINDEX.PROCESSORS[processorObj[0]] && typeof APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]]=="function") {
-                                            APPINDEX.PROCESSORS[processorObj[0]][processorObj[1]](data, config, req, function(resultData) {
+                                        if(APPINDEX.PROCESSORS[processorObj[0].toUpperCase()] && typeof APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]]=="function") {
+                                            APPINDEX.PROCESSORS[processorObj[0].toUpperCase()][processorObj[1]](data, config, req, function(resultData) {
                                                 res.send({
                                                     "status": "success",
                                                     "msg": msgObj,
@@ -554,7 +554,7 @@ module.exports = function(server, restify) {
                                         return next();
                                     }
                                 }
-                            }, req)
+                            }, req, res);
                         });
                         break;
         
@@ -622,7 +622,7 @@ function generateController(controllerID, controllerConfig) {
 
     _.each(controllerConfig, function(conf, funcKey) {
         newController[funcKey] = function(params, callback) {
-            console.log("GENERATED_CONTROLLER", funcKey, params, conf);
+            //console.log("GENERATED_CONTROLLER", funcKey, params, conf, controllerConfig[funcKey]);
 
             switch(conf.type) {
                 case "sql":
@@ -630,6 +630,11 @@ function generateController(controllerID, controllerConfig) {
                     var additionalQuery = "";
                     if(conf.group_by) additionalQuery += ` GROUP BY ${conf.group_by}`;
                     if(conf.order_by) additionalQuery += ` ORDER BY ${conf.order_by}`;
+
+                    if(!conf.where) conf.where = {};
+                    _.each(conf.where, function(v,k) {
+                        conf.where[k] = _replace(v, params);
+                    })
 
                     db_selectQ("MYSQL0", conf.table, conf.columns, conf.where, {}, function(data, errorMsg) {
                         //console.log("XXXXXXX", data, errorMsg);

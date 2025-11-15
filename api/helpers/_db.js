@@ -156,7 +156,7 @@ module.exports = function(server, restify) {
 	            return callback(false, err.code, err.sqlMessage);
 	          }
 
-	          callback(results.insertId);
+	          callback(results.insertId, err);
 	        });
 	}
 

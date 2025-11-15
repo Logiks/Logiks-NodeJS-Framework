@@ -65,6 +65,16 @@ module.exports = function(server, restify) {
         return next(new errors.NotAcceptableError("Method or Path was not found or not acceptable by server"));
     });
 
+    server.get('/health', (req, res, next) => {
+        res.send({
+            "STATUS": "ok",
+            "SERVER": CONFIG.name,
+            "VERSION": CONFIG.version,
+            "TIMESTAMP": moment().format("Y-M-D HH:mm:ss")
+        });
+        return next();
+    });
+
     server.get('/ping', (req, res, next) => {
         if(CONFIG.debug) {
             res.header('content-type', 'json');

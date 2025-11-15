@@ -10,11 +10,23 @@ module.exports = function(server, restify) {
 		global._ENV = {};
 	}
 
+	registerEnvVariable = function(varObj, forceValues = false) {
+		if(!varObj || typeof varObj != "object") varObj = {};
+
+		if(forceValues)
+			_ENV = _.extend(_ENV, varObj);
+		else
+			_ENV = _.extend({}, varObj, _ENV);
+
+		return true;
+	}
+
 	getEnvConfig = function(configKey, defaultValue) {
 		if(configKey==null) return null;
-		configKey = configKey.toLowerCase();
+		// configKey = configKey.toLowerCase();
 		
 		if(_ENV[configKey] != null) return _ENV[configKey];
+		else if(CONFIG[configKey] != null) return CONFIG[configKey];
 		else return defaultValue;
 	}
 
