@@ -620,9 +620,10 @@ module.exports = function(server, restify) {
 function generateController(controllerID, controllerConfig) {
     var newController = {};
 
-    _.each(controllerConfig, function(conf, funcKey) {
+    _.each(controllerConfig, function(confOriginal, funcKey) {
         newController[funcKey] = function(params, callback) {
-            //console.log("GENERATED_CONTROLLER", funcKey, params, conf, controllerConfig[funcKey]);
+            var conf = _.cloneDeep(confOriginal);
+            // console.log("GENERATED_CONTROLLER", funcKey, params, conf, confOriginal, controllerConfig[funcKey]);
 
             switch(conf.type) {
                 case "sql":
