@@ -5,9 +5,8 @@ const apiHTTPS = require('https');
 const apiHTTP = require('http');
 
 module.exports = function(server) {
-    initialize = function() {
-        
-    }
+    
+    initialize = function() {},
 
     sendSMS = function(smsTO, msgBody, msgType, params) {
 

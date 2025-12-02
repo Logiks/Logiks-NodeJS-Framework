@@ -6,6 +6,8 @@ const crypto = require('crypto');
 
 module.exports = function(server) {
 
+  initialize = function() {},
+
   slugify = function(text) {
     return text.toString().toLowerCase()
       .replace(/\s+/g, '-')           // Replace spaces with -

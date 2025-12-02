@@ -6,6 +6,8 @@ const IV_LENGTH = 16; // recommended 96-bit nonce
 
 module.exports = function(server) {
 
+    initialize = function() {},
+
     encrypt = function(text, encryptionKey) {
         if (!text) return null;
         if(!encryptionKey) encryptionKey = CONFIG.SALT_KEY;
