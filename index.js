@@ -12,7 +12,6 @@ const config = require('./app/config');
  * Loading all plugin packages required
  */
 const express = require('express');
-const nanoID = require("nanoid").nanoid;
 
 global.moment = require('moment');
 global._ = require('lodash');

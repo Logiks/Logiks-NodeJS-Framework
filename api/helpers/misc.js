@@ -1,6 +1,5 @@
 //Misc Helper Functions
 
-const { customAlphabet } = require("nanoid");
 const Validator = require('validatorjs');
 const crypto = require('crypto');
 // const sha1 = require('sha1');
@@ -105,11 +104,9 @@ module.exports = function(server) {
     return md5(prefix+("" + number).substring(add)+uuid()+moment().format("Y-M-DTHH:mm:ss"));
   }
 
-  //nanoid
   generateID = function(length) {
     if(length==null) length = 12;
-    //return nanoid.nanoid(length);
-    return customAlphabet("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 12)();
+    return UNIQUEID.customAlphabet("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 12)();
   }
 
   timeStamp = function() {

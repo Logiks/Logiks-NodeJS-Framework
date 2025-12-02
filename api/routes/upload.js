@@ -3,8 +3,6 @@
 const mime = require('mime-types');
 const archiver = require('archiver');
 const path = require('path');
-const { customAlphabet } = require("nanoid");
-const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 12);
 
 const BASE_URL = "/files/";
 
@@ -85,7 +83,7 @@ module.exports = function (server) {
         var doc_name = req.body.doc_name;
         var doc_group = req.body.doc_group;
         var content = req.body.content;
-        var fileID = nanoid();
+        var fileID = UNIQUEID.customAlphabet("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 12);
 
         var content_original = content;
         // console.log("XXXXX", content_original);
@@ -211,7 +209,7 @@ module.exports = function (server) {
         var upload_type = req.body.upload_type;
         var doc_name = req.body.doc_name;
         var content = req.body.content;
-        var fileID = nanoid();
+        var fileID = UNIQUEID.customAlphabet("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 12)
 
         var content_original = content;
         // console.log("XXXXX", content_original);
