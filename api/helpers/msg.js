@@ -9,12 +9,12 @@ module.exports = function(server) {
         
     }
 
-    server.sendSMS = function(smsTO, msgBody, msgType, params) {
+    sendSMS = function(smsTO, msgBody, msgType, params) {
 
     },
 
-    server.sendEmail = function(toEmail, subject, msgBody) {
-        var transporter = nodemailer.createTransport(server.config.mail);
+    sendEmail = function(toEmail, subject, msgBody) {
+        var transporter = nodemailer.createTransport(CONFIG.mail);
         var mailOptions = {
             from: '"Test NoReply" <noreply@test.com>', // sender address
             to: toEmail, // list of receivers

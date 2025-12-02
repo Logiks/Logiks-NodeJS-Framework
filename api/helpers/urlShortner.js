@@ -6,7 +6,7 @@ module.exports = function(server) {
         
     }
 
-    server.urlShorten = function(srcURL, category, callback) {
+    urlShorten = function(srcURL, category, callback) {
     	var cuttlyAPI = "https://cutt.ly/api/api.php?key=b851f5efa08c313cd6575d00f405f0a59c0d7&short="+encodeURI(srcURL);
 
 	 	axios({
