@@ -8,7 +8,7 @@ const cron = require('node-cron');
 const LOADED_PLUGINS = {};
 const ACTIVE_JOBS = {};
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     initialize = function() {
         if(CONFIG.AUTOMATOR_JOBS==null) CONFIG.AUTOMATOR_JOBS = {};

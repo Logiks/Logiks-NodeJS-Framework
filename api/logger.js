@@ -30,6 +30,10 @@ module.exports = {
 		return Object.keys(this.LOGGERS);
 	},
 
+	loggers: function() {
+		return this.LOGGERS;
+	},
+
 	initLoggers: function() {
 		that = this;
 

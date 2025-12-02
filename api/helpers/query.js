@@ -3,7 +3,7 @@
  * 
  * */
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     initialize = function() {
         

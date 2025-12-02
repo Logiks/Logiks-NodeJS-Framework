@@ -11,11 +11,7 @@ const config = require('./app/config');
 /**
  * Loading all plugin packages required
  */
-const restify = require('restify');
-const restifyPlugins = require('restify-plugins');
-const errors = require('restify-errors');
-const bunyan = require('bunyan');
-
+const express = require('express');
 const nanoID = require("nanoid").nanoid;
 
 global.moment = require('moment');
@@ -34,7 +30,6 @@ console.log("\x1b[34m%s\x1b[0m","\nAPI Engine Initialization Started\n");
 
 global.CONFIG = config;
 global._ENV = {};
-global.errors = errors;
 
 global._LOGGER = require('./api/logger');
 _LOGGER.initLoggers();
@@ -42,24 +37,20 @@ _LOGGER.initLoggers();
 /**
  * Initialize Server
  */
-const server = restify.createServer({
-    name: config.name,
-    version: config.version,
+const server = express();
+server.config = CONFIG;
 
-    dtrace: false,
-    log: logger,
-    ignoreTrailingSlash: true
-});
-server.config = config;
+server.set('name', CONFIG.name);
+server.set('version', CONFIG.version);
 
-require('./api/plugins')(server, restify);
-require('./api/middleware')(server, restify);
+require('./api/plugins')(server);
+require('./api/middleware')(server);
 
 
-require('./api/security')(server, restify);
-require('./api/routes')(server, restify); // Load Basic System Routes
+require('./api/security')(server);
+require('./api/routes')(server); // Load Basic System Routes
 
-require('./api/bootstrap')(server, restify);//Initiating all basic functions
+require('./api/bootstrap')(server);//Initiating all basic functions
 
 /**
  * Start Server, Checks for availale PORTs

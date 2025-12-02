@@ -14,7 +14,7 @@ if(CONFIG.cache.enable) {
  * using indexes. This is important as REDIS Cache forms the core to our speed
  * 
  * */
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     initialize = function() {
         if(CONFIG.cache.enable) {

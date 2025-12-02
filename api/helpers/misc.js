@@ -5,7 +5,7 @@ const Validator = require('validatorjs');
 const crypto = require('crypto');
 // const sha1 = require('sha1');
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
   initialize = function() {
     server.slugify = function(text) {

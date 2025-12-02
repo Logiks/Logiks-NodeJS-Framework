@@ -4,7 +4,7 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16; // recommended 96-bit nonce
 
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     encrypt = function(text, encryptionKey) {
         if (!text) return null;

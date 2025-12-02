@@ -1,6 +1,6 @@
 //ENV Configuration
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
 	initialize = function() {
 		console.log("\x1b[36m%s\x1b[0m","Environment Initialized");

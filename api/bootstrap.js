@@ -1,12 +1,12 @@
 //For bootstraping the system up
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     fs.readdirSync('./api/helpers/').forEach(function(file) {
         if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
             var className = file.toLowerCase().replace(".js", "").toUpperCase();
             var filePath = path.resolve('./api/helpers/' + file);
-            global[className] = require(filePath)(server, restify);
+            global[className] = require(filePath)(server);
     
             // console.log(">>>Loading:Helper", className, typeof global[className]);
             if(global[className].initialize!=null) {
@@ -22,7 +22,7 @@ module.exports = function(server, restify) {
         if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
             var className = file.toLowerCase().replace(".js", "").toUpperCase();
             var filePath = path.resolve('./api/controllers/' + file);
-            global[className] = require(filePath)(server, restify);
+            global[className] = require(filePath)(server);
             CLASSLIST.push(className);
             // console.log(">>>Loading:Controller", className, typeof global[className]);
         }

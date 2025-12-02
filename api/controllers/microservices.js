@@ -5,7 +5,7 @@
 
 var MICSERVICE_CONFIG = {};
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     initialize = function() {
         if(CONFIG.is_microservice) {

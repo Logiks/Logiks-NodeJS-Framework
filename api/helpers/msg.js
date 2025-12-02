@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const apiHTTPS = require('https');
 const apiHTTP = require('http');
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
     initialize = function() {
         
     }

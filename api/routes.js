@@ -2,7 +2,10 @@
  * All Routing Logic is written here
  * 
  * */
-module.exports = function(server, restify) {
+
+const express = require('express');
+
+module.exports = function(server) {
 
     server.use((req, res, next) => {
         //res.header("Access-Control-Allow-Origin", "*");
@@ -11,11 +14,12 @@ module.exports = function(server, restify) {
         next();
     });
 
-
-    server.opts("*", function(req, res, next) {
-        res.send(200);
-        return next();
-    });
+    // server.options("*", function(req, res, next) {
+    //     res.header('Access-Control-Allow-Origin', '*');
+    //     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    //     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    //     res.sendStatus(200);
+    // });
 
     if(CONFIG.enable_public_folder) {
         if(CONFIG.html_server_allow_root) {
@@ -38,14 +42,32 @@ module.exports = function(server, restify) {
             });
         }
         
-        server.get(
-            `/${CONFIG.html_server_path}/*`,
-            restify.plugins.serveStatic({
-                directory: CONFIG.ROOT_PATH+`/${CONFIG.html_public_folder}`,
-                default: 'index.html',
-                appendRequestPath: false,
+        const staticPath = path.join(
+            CONFIG.ROOT_PATH,
+            CONFIG.html_public_folder
+        );
+
+        // Serve main index.html explicitly
+        server.get(`/${CONFIG.html_server_path}`, (req, res) => {
+            res.sendFile(path.join(staticPath, 'index.html'));
+        });
+
+        // Serve all static assets under the same route
+        server.use(
+            `/${CONFIG.html_server_path}`,
+            express.static(staticPath, {
+                index: false,          // match Restify behavior
+                fallthrough: true,
+                setHeaders: (res) => {
+                    res.setHeader('Cache-Control', 'no-store');
+                }
             })
-          );
+        );
+
+        // SPA fallback for deep routes (equivalent to /* in Restify)
+        server.get(`/${CONFIG.html_server_path}/:path(*)`, (req, res) => {
+            res.sendFile(path.join(staticPath, 'index.html'));
+        });
     } else {
         server.get('/', (req, res, next) => {
             res.sendRaw(CONFIG.welcome);

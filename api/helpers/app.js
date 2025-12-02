@@ -11,7 +11,7 @@ const APPINDEX = {
     "ROUTES": {}
 };
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
 	initialize = function() {
         // CONFIG.strict_routes=true;
@@ -28,7 +28,7 @@ module.exports = function(server, restify) {
                 if ((file.indexOf(".js") > 0 && (file.indexOf(".js") + 3 == file.length))) {
                     var className = file.toLowerCase().replace(".js", "").toUpperCase();
                     var filePath = path.resolve('./app/helpers/' + file);
-                    global[className] = require(filePath)(server, restify);
+                    global[className] = require(filePath)(server);
             
                     // console.log(">>>Loading:Helper", className, typeof global[className]);
                     if(global[className].initialize!=null) {
@@ -49,7 +49,7 @@ module.exports = function(server, restify) {
                     var clsName = file.replace('.js','').toUpperCase();
                     var filePath = path.resolve('./app/controllers/' + file);
 
-                    global[clsName] = require(filePath);//(server, restify);
+                    global[clsName] = require(filePath);//(server);
                     APPINDEX.CONTROLLERS[clsName] = global[clsName];
                     CLASSLIST.push(clsName);
                     // console.log("> Loading Controller", clsName);
@@ -58,7 +58,7 @@ module.exports = function(server, restify) {
 
             _.each(CLASSLIST, function(className, k) {
                 if(global[className].initialize!=null) {
-                    global[className].initialize(server, restify);
+                    global[className].initialize(server);
                 }
             });
         }
@@ -84,7 +84,7 @@ module.exports = function(server, restify) {
                     var clsName = file.replace('.js','').toUpperCase();
                     var filePath = path.resolve('./app/controllers/vendors/' + file);
     
-                    global[clsName] = require(filePath);//(server, restify);
+                    global[clsName] = require(filePath);//(server);
                     APPINDEX.CONTROLLERS[clsName] = global[clsName];
                     //console.log(">Loading Controller", clsName);
                 }
@@ -147,7 +147,7 @@ module.exports = function(server, restify) {
                     var filePath = path.resolve('./api/routes/' + file);
                     var basePath = clsName.toLowerCase();
     
-                    require(filePath)(server, restify);
+                    require(filePath)(server);
                 }
             });
         }
@@ -173,7 +173,7 @@ module.exports = function(server, restify) {
                     var filePath = path.resolve('./app/routes/' + file);
                     var basePath = clsName.toLowerCase();
 
-                    require(filePath)(server, restify);
+                    require(filePath)(server);
                 }
             });
         }

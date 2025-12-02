@@ -13,5 +13,3 @@ This should give you a basic api at 8888 (If you have not changed the port). Hit
 
 
 
-### Reference
-+ http://restify.com/docs/home/

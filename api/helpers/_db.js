@@ -4,7 +4,7 @@ const mysql = require('mysql2');
 
 var _MYSQL = {};
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
 	initialize = function(callback) {
 		if(CONFIG.dbmysql==null) return;

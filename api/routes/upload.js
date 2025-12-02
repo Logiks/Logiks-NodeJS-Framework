@@ -60,7 +60,7 @@ const createZip = (files, fileDir, los_no) => {
     });
 };
 
-module.exports = function (server, restify) {
+module.exports = function (server) {
     // new logic for doc upload
     server.post('/upload', (req, res, next) => {
         var vStatus = validateRule(req.body, {

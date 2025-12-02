@@ -2,7 +2,7 @@
 
 var Validator = require('validatorjs');
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
 	initialize = function() {
 		// Validator.register('telephone', function(value, requirement, attribute) { // requirement parameter defaults to null

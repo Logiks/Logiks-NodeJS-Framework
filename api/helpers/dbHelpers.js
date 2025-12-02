@@ -1,6 +1,6 @@
 //Common Required Helper Functions for database
 
-module.exports = function(server, restify) {
+module.exports = function(server) {
 
     initialize = function() {
         // Initialization code here
