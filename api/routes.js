@@ -65,16 +65,26 @@ module.exports = function(server) {
         );
 
         // SPA fallback for deep routes (equivalent to /* in Restify)
-        server.get(`/${CONFIG.html_server_path}/:path(*)`, (req, res) => {
-            res.sendFile(path.join(staticPath, 'index.html'));
+        // server.get(new RegExp(`^/${CONFIG.html_server_path}(?:/.*)?$`), (req, res) => {
+        //     res.sendFile('index.html', { root: staticPath });
+        // });
+
+        server.use((req, res, next) => {
+            console.log("debug routes.js")
+            const root = `/${CONFIG.html_server_path}`;
+            console.log("root: ", root)
+            if (req.path === root || req.path.startsWith(root + '/')) {
+                return res.sendFile('index.html', { root: staticPath });
+            }
+            next();
         });
+
     } else {
         server.get('/', (req, res, next) => {
             res.sendRaw(CONFIG.welcome);
             return next();
         });
     }
-    
     server.post('/', (req, res, next) => {
         res.sendRaw(CONFIG.welcome);
         return next();
