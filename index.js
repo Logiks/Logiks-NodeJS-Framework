@@ -23,9 +23,9 @@ global.md5 = require('md5');
 
 
 config.START_TIME = moment().format();
-config.ROOT_PATH  = __dirname;
+config.ROOT_PATH = __dirname;
 
-console.log("\x1b[34m%s\x1b[0m","\nAPI Engine Initialization Started\n");
+console.log("\x1b[34m%s\x1b[0m", "\nAPI Engine Initialization Started\n");
 
 global.CONFIG = config;
 global._ENV = {};
@@ -47,22 +47,21 @@ require('./api/middleware')(server);
 
 
 require('./api/security')(server);
-require('./api/routes')(server); // Load Basic System Routes
-
 require('./api/bootstrap')(server);//Initiating all basic functions
+
+APP.initializeApplication();
+
+require('./api/routes')(server);// Load Basic System Routes
 
 /**
  * Start Server, Checks for availale PORTs
  * Then Connect to Mongo, MySQL, Redis, RabbitMQ
  */
 server.listen(config.port, () => {
-    console.log("");
-    APP.initializeApplication();
+  console.log("\n\x1b[34m%s\x1b[0m", "API Engine Initialization Completed");
+  console.log(`Server Started @ ` + moment().format() + ` and can be accessed on ${config.host}:${config.port}/`);
 
-    console.log("\n\x1b[34m%s\x1b[0m","API Engine Initialization Completed");
-    console.log(`Server Started @ `+moment().format()+` and can be accessed on ${config.host}:${config.port}/`);
-
-    if(CONFIG.remoteDebug===true) {
-        startRemoteDebugger();
-    }
+  if (CONFIG.remoteDebug === true) {
+    startRemoteDebugger();
+  }
 });

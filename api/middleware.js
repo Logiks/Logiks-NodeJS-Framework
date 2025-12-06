@@ -3,7 +3,7 @@
  * They are loaded before routes are processed
  * 
  * */
-module.exports = function(server) {
+module.exports = function (server) {
 
     /**
      * =========================================================
@@ -13,17 +13,29 @@ module.exports = function(server) {
     server.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
 
-        if (req.method.toUpperCase() === 'OPTIONS') {
+        if (req.method.toUpperCase() === "OPTIONS") {
             const allowHeaders = [
-            'Accept', 'Accept-Version', 'Content-Type',
-            'Api-Version', 'Origin', 'X-Requested-With',
-            'x-data-hash', 'authorization', 'auth-token',
-            'appid', 'appkey', 'apikey', 'sesskey'
+                "Accept",
+                "Accept-Version",
+                "Content-Type",
+                "Api-Version",
+                "Origin",
+                "X-Requested-With",
+                "x-data-hash",
+                "authorization",
+                "auth-token",
+                "appid",
+                "appkey",
+                "apikey",
+                "sesskey",
             ];
 
-            res.header('Access-Control-Allow-Credentials', true);
-            res.header('Access-Control-Allow-Headers', allowHeaders.join(', '));
-            res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE, AUTHORIZATION');
+            res.header("Access-Control-Allow-Credentials", true);
+            res.header("Access-Control-Allow-Headers", allowHeaders.join(", "));
+            res.header(
+                "Access-Control-Allow-Methods",
+                "GET, POST, OPTIONS, PUT, DELETE, AUTHORIZATION"
+            );
             return res.sendStatus(204);
         }
 
@@ -48,7 +60,7 @@ module.exports = function(server) {
                 QUERY: req.query,
                 PARAMS: req.params,
                 HEADERS: req.headers,
-                HOST: req.get('host'),
+                HOST: req.get("host"),
                 CLIENT_IP: MISC.getClientIP(req),
                 USER_AGENT: req.useragent?.source,
             };
@@ -59,14 +71,6 @@ module.exports = function(server) {
         }
 
         next();
-    });
-
-    //Page Not Found Handler
-    server.use((req, res) => {
-        res.status(404).json({
-            success: false,
-            message: 'Page Not Found'
-        });
     });
 
     /**
@@ -81,5 +85,4 @@ module.exports = function(server) {
             message: 'Internal Server Error'
         });
     });
-    
-}
+};

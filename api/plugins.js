@@ -10,7 +10,6 @@ const multer = require('multer');
 const useragent = require('express-useragent');
 const rateLimit = require('express-rate-limit');
 const basicAuth = require('express-basic-auth');
-const bunyanMiddleware = require('express-bunyan-logger');
 
 module.exports = function(server) {
 

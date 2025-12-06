@@ -374,7 +374,7 @@ module.exports = function(server) {
                         });
                     });
 
-                    server.del(`/${pathSlug}/*`, (req, res, next) => {
+                    server.delete(`/${pathSlug}/*`, (req, res, next) => {
                         // console.log("ROUTE_POST_CONFIG", req.params, req.query, req.body, req.headers);
         
                         var switch_value = false;

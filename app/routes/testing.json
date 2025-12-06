@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "routes": {
+    "/": {
+      "method": "GET",
+      "data": "test.get",
+      "processor": "data.processor1",
+      "format": "json"
+    },
+    "/create": {
+      "method": "POST",
+      "data": "test.create",
+      "processor": "data.processor1",
+      "format": "json"
+    },
+    "/edit": {
+      "method": "PUT",
+      "data": "test.edit",
+      "processor": "data.processor1",
+      "format": "json"
+    },
+    "/delete": {
+      "method": "DELETE",
+      "data": "test.delete",
+      "processor": "data.processor1",
+      "format": "json"
+    }
+  }
+}
